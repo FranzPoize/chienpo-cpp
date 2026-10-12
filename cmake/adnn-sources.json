@@ -1,0 +1,6 @@
+{
+  "handy": {"url": "https://github.com/ShredEagle/handy.git", "revision": "e2b164a80410e7291e5184bf85be5c489c92c019"},
+  "math": {"url": "https://github.com/ShredEagle/math.git", "revision": "5fabb250e36f2fc10e5149e11cb0c47cea4e2f5e"},
+  "graphics": {"url": "https://github.com/ShredEagle/graphics.git", "revision": "826ea9d28211290f816d45dfecdaa362131f6797"},
+  "sounds": {"url": "https://github.com/ShredEagle/sounds.git", "revision": "7ba1fe11453d9c6215455b09fb5f4646d4cc192a"}
+}

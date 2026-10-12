@@ -1,0 +1,534 @@
+{
+  "audio_conversion": {
+    "command": [
+      "ffmpeg",
+      "-nostdin",
+      "-v",
+      "error",
+      "-f",
+      "s16le",
+      "-ar",
+      "48000",
+      "-ac",
+      "2",
+      "-i",
+      "SOURCE.pcm",
+      "-map_metadata",
+      "-1",
+      "-c:a",
+      "libvorbis",
+      "-q:a",
+      "6",
+      "-fflags",
+      "+bitexact",
+      "-flags:a",
+      "+bitexact",
+      "DESTINATION.ogg"
+    ],
+    "ffmpeg_version": "ffmpeg version n9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+    "input": "signed 16-bit little-endian PCM, 48000 Hz, stereo",
+    "output": "Ogg Vorbis, quality 6, 48000 Hz, stereo"
+  },
+  "excluded_legacy_data": [
+    "base_level.cpl",
+    "saved_levels/",
+    "test/"
+  ],
+  "files": [
+    {
+      "bytes": 27816,
+      "path": "animations/00_chienpo_electrics.ild",
+      "sha256": "d394cbc8e8011ed43dae1e117930783420c778821cd0b22da220522409d2ea43",
+      "source": "animations/00_chienpo_electrics.ild",
+      "source_sha256": "d394cbc8e8011ed43dae1e117930783420c778821cd0b22da220522409d2ea43"
+    },
+    {
+      "bytes": 13584,
+      "path": "animations/01_chienpo_electrics.ild",
+      "sha256": "fa263c7190b00ea39e691a8a9eb6ab314b1b2300b226208c505686d8745c0b03",
+      "source": "animations/01_chienpo_electrics.ild",
+      "source_sha256": "fa263c7190b00ea39e691a8a9eb6ab314b1b2300b226208c505686d8745c0b03"
+    },
+    {
+      "bytes": 8536,
+      "path": "animations/01_ramen.ild",
+      "sha256": "0235c32a2c0a100917213d99a6d81fe85fbf96c2b4fb037923fcbd65362487b3",
+      "source": "animations/01_ramen.ild",
+      "source_sha256": "0235c32a2c0a100917213d99a6d81fe85fbf96c2b4fb037923fcbd65362487b3"
+    },
+    {
+      "bytes": 63704,
+      "path": "animations/01_ramen_jaune.ild",
+      "sha256": "facf345a9fa2eae52ebbea7c6e9934349da62475b894d6a46c730a55e008c5ce",
+      "source": "animations/01_ramen_jaune.ild",
+      "source_sha256": "facf345a9fa2eae52ebbea7c6e9934349da62475b894d6a46c730a55e008c5ce"
+    },
+    {
+      "bytes": 973976,
+      "path": "animations/01_station_145f.ild",
+      "sha256": "0b1fe239de5a2e1075d07700072dbae28ba939e68b76800b9b02eed76cbfd0be",
+      "source": "animations/01_station_145f.ild",
+      "source_sha256": "0b1fe239de5a2e1075d07700072dbae28ba939e68b76800b9b02eed76cbfd0be"
+    },
+    {
+      "bytes": 307120,
+      "path": "animations/01_station_50f.ild",
+      "sha256": "8cda4c3567964c2722429fd178a55dba5ebeedafe4e66afebc036df7da8ccbf2",
+      "source": "animations/01_station_50f.ild",
+      "source_sha256": "8cda4c3567964c2722429fd178a55dba5ebeedafe4e66afebc036df7da8ccbf2"
+    },
+    {
+      "bytes": 12080,
+      "path": "animations/02_chienpo_electrics.ild",
+      "sha256": "ddba9de0f1a5f3e5672d9faf115a3f4d8b6fd2e84140d01062a4948b222b638b",
+      "source": "animations/02_chienpo_electrics.ild",
+      "source_sha256": "ddba9de0f1a5f3e5672d9faf115a3f4d8b6fd2e84140d01062a4948b222b638b"
+    },
+    {
+      "bytes": 6696,
+      "path": "animations/02_ramen.ild",
+      "sha256": "1bef7d242200f989d6761ba9a0b18521a2a213e278ad08fcb4f3e0dc10051524",
+      "source": "animations/02_ramen.ild",
+      "source_sha256": "1bef7d242200f989d6761ba9a0b18521a2a213e278ad08fcb4f3e0dc10051524"
+    },
+    {
+      "bytes": 8736,
+      "path": "animations/barrierr.ild",
+      "sha256": "4e839e33e237c3861e864714b4b0e1223235df327d4bada0d7c2ac7b9419bf2c",
+      "source": "animations/barrierr.ild",
+      "source_sha256": "4e839e33e237c3861e864714b4b0e1223235df327d4bada0d7c2ac7b9419bf2c"
+    },
+    {
+      "bytes": 25456,
+      "path": "animations/boss-puck_01_idle.ild",
+      "sha256": "7c3e9f466ee127ee07454615ed0561692bb2681965ef5b16383a3af67d0ba7fa",
+      "source": "animations/boss-puck_01_idle.ild",
+      "source_sha256": "7c3e9f466ee127ee07454615ed0561692bb2681965ef5b16383a3af67d0ba7fa"
+    },
+    {
+      "bytes": 21136,
+      "path": "animations/boss-puck_02_action-tir.ild",
+      "sha256": "e823d462f0c1d9bb215400983263c08f95e5509457ac429bcc28d131da097231",
+      "source": "animations/boss-puck_02_action-tir.ild",
+      "source_sha256": "e823d462f0c1d9bb215400983263c08f95e5509457ac429bcc28d131da097231"
+    },
+    {
+      "bytes": 21136,
+      "path": "animations/boss-puck_02_action-tirB.ild",
+      "sha256": "e823d462f0c1d9bb215400983263c08f95e5509457ac429bcc28d131da097231",
+      "source": "animations/boss-puck_02_action-tirB.ild",
+      "source_sha256": "e823d462f0c1d9bb215400983263c08f95e5509457ac429bcc28d131da097231"
+    },
+    {
+      "bytes": 83688,
+      "path": "animations/boss-puck_03_win.ild",
+      "sha256": "4bf40e03f901ab2bd2cc2991fbd8e7f814c1eede4ec9a9f9763d81edb142e240",
+      "source": "animations/boss-puck_03_win.ild",
+      "source_sha256": "4bf40e03f901ab2bd2cc2991fbd8e7f814c1eede4ec9a9f9763d81edb142e240"
+    },
+    {
+      "bytes": 16200,
+      "path": "animations/boss-puck_04_win_idle.ild",
+      "sha256": "e4d0feb8317c9fdd031ba3f7aae56be522011bbb26305473e31012885a233789",
+      "source": "animations/boss-puck_04_win_idle.ild",
+      "source_sha256": "e4d0feb8317c9fdd031ba3f7aae56be522011bbb26305473e31012885a233789"
+    },
+    {
+      "bytes": 8464,
+      "path": "animations/boule.ild",
+      "sha256": "924b33132f70ea5f16d70d01d41b4098a69428f111c6829482ec618788a9ab59",
+      "source": "animations/boule.ild",
+      "source_sha256": "924b33132f70ea5f16d70d01d41b4098a69428f111c6829482ec618788a9ab59"
+    },
+    {
+      "bytes": 4680,
+      "path": "animations/chienpo_climb_2f.ild",
+      "sha256": "a8e818c5717a3f5250c35702ca5925977abd51ccf95befd6824ab0fc95cf6638",
+      "source": "animations/chienpo_climb_2f.ild",
+      "source_sha256": "a8e818c5717a3f5250c35702ca5925977abd51ccf95befd6824ab0fc95cf6638"
+    },
+    {
+      "bytes": 10048,
+      "path": "animations/chienpo_dead-a.ild",
+      "sha256": "fbdc975901b560f344bd5f29a1840066bda79fd30bfe4aa97f16d647012afaa6",
+      "source": "animations/chienpo_dead-a.ild",
+      "source_sha256": "fbdc975901b560f344bd5f29a1840066bda79fd30bfe4aa97f16d647012afaa6"
+    },
+    {
+      "bytes": 11904,
+      "path": "animations/chienpo_dead-b.ild",
+      "sha256": "b1b10a4513c809b47b6795f28825afc5bc9fec00f1e3feb4bb794e759f5eb46c",
+      "source": "animations/chienpo_dead-b.ild",
+      "source_sha256": "b1b10a4513c809b47b6795f28825afc5bc9fec00f1e3feb4bb794e759f5eb46c"
+    },
+    {
+      "bytes": 18536,
+      "path": "animations/chienpo_doublejump.ild",
+      "sha256": "4bb1151b93a835bfde6fd27b4b97b1bb0101dd72fde0b2cbce1d006e2cc70899",
+      "source": "animations/chienpo_doublejump.ild",
+      "source_sha256": "4bb1151b93a835bfde6fd27b4b97b1bb0101dd72fde0b2cbce1d006e2cc70899"
+    },
+    {
+      "bytes": 3088,
+      "path": "animations/chienpo_idle.ild",
+      "sha256": "4a444da1d437585404df1e5fdc452190eb6463875f170ce0e277e95516d73a37",
+      "source": "animations/chienpo_idle.ild",
+      "source_sha256": "4a444da1d437585404df1e5fdc452190eb6463875f170ce0e277e95516d73a37"
+    },
+    {
+      "bytes": 5840,
+      "path": "animations/chienpo_jump.ild",
+      "sha256": "1408c2a6f623d7c4e1157216bff70582989700bf1ce7c9fc7a15ad226a7ed2a3",
+      "source": "animations/chienpo_jump.ild",
+      "source_sha256": "1408c2a6f623d7c4e1157216bff70582989700bf1ce7c9fc7a15ad226a7ed2a3"
+    },
+    {
+      "bytes": 6168,
+      "path": "animations/chienpo_stop.ild",
+      "sha256": "f0bb47a81e73ce46af4d68b3af785b4eee133d6e81b3db43bcf405088d9ee705",
+      "source": "animations/chienpo_stop.ild",
+      "source_sha256": "f0bb47a81e73ce46af4d68b3af785b4eee133d6e81b3db43bcf405088d9ee705"
+    },
+    {
+      "bytes": 17928,
+      "path": "animations/chienpo_walk-4f.ild",
+      "sha256": "3b819202d376769f1a5b53a6a80243f9cac29f55929705c54de8fcf2f1fbad4f",
+      "source": "animations/chienpo_walk-4f.ild",
+      "source_sha256": "3b819202d376769f1a5b53a6a80243f9cac29f55929705c54de8fcf2f1fbad4f"
+    },
+    {
+      "bytes": 10992,
+      "path": "animations/climb_2f.ild",
+      "sha256": "8910d46c9a22c319a1dcaf366ccb64ad28a874761ed8dbd8699b89572e903637",
+      "source": "animations/climb_2f.ild",
+      "source_sha256": "8910d46c9a22c319a1dcaf366ccb64ad28a874761ed8dbd8699b89572e903637"
+    },
+    {
+      "bytes": 26328,
+      "path": "animations/demo_1.ild",
+      "sha256": "86b681b87f2410a34835a2b89d3e111d0267d34992a050a7652790fbc6287e8a",
+      "source": "animations/demo_1.ild",
+      "source_sha256": "86b681b87f2410a34835a2b89d3e111d0267d34992a050a7652790fbc6287e8a"
+    },
+    {
+      "bytes": 38592,
+      "path": "animations/demo_2.ild",
+      "sha256": "3edaaf23f79e9aec8772b8a3ea751b1e9003135ff186337d12a65f0586d63207",
+      "source": "animations/demo_2.ild",
+      "source_sha256": "3edaaf23f79e9aec8772b8a3ea751b1e9003135ff186337d12a65f0586d63207"
+    },
+    {
+      "bytes": 16616,
+      "path": "animations/demo_neon01.ild",
+      "sha256": "1d60b320975235d9325f03c6fd3d5a21cb70b59843fecb7027433685d30e485d",
+      "source": "animations/demo_neon01.ild",
+      "source_sha256": "1d60b320975235d9325f03c6fd3d5a21cb70b59843fecb7027433685d30e485d"
+    },
+    {
+      "bytes": 16616,
+      "path": "animations/demo_neon02.ild",
+      "sha256": "1d60b320975235d9325f03c6fd3d5a21cb70b59843fecb7027433685d30e485d",
+      "source": "animations/demo_neon02.ild",
+      "source_sha256": "1d60b320975235d9325f03c6fd3d5a21cb70b59843fecb7027433685d30e485d"
+    },
+    {
+      "bytes": 27816,
+      "path": "animations/demo_neon03_transition_au_push-start.ild",
+      "sha256": "d394cbc8e8011ed43dae1e117930783420c778821cd0b22da220522409d2ea43",
+      "source": "animations/demo_neon03_transition_au_push-start.ild",
+      "source_sha256": "d394cbc8e8011ed43dae1e117930783420c778821cd0b22da220522409d2ea43"
+    },
+    {
+      "bytes": 6696,
+      "path": "animations/demo_transition.ild",
+      "sha256": "1bef7d242200f989d6761ba9a0b18521a2a213e278ad08fcb4f3e0dc10051524",
+      "source": "animations/demo_transition.ild",
+      "source_sha256": "1bef7d242200f989d6761ba9a0b18521a2a213e278ad08fcb4f3e0dc10051524"
+    },
+    {
+      "bytes": 7104,
+      "path": "animations/gameover.ild",
+      "sha256": "d2b3d51a3b40a7cc8878f9e1a5ccd80568fa7138aa46a4e72953c87af72362cd",
+      "source": "animations/gameover.ild",
+      "source_sha256": "d2b3d51a3b40a7cc8878f9e1a5ccd80568fa7138aa46a4e72953c87af72362cd"
+    },
+    {
+      "bytes": 46336,
+      "path": "animations/gameover_lose_transition.ild",
+      "sha256": "f1aa6edc75de7d17657b90a6e98e6d312bb9af1c4b15939f3dd1c6ed79581548",
+      "source": "animations/gameover_lose_transition.ild",
+      "source_sha256": "f1aa6edc75de7d17657b90a6e98e6d312bb9af1c4b15939f3dd1c6ed79581548"
+    },
+    {
+      "bytes": 7104,
+      "path": "animations/gameover_transition-optional-actuelmt-gros.ild",
+      "sha256": "d2b3d51a3b40a7cc8878f9e1a5ccd80568fa7138aa46a4e72953c87af72362cd",
+      "source": "animations/gameover_transition-optional-actuelmt-gros.ild",
+      "source_sha256": "d2b3d51a3b40a7cc8878f9e1a5ccd80568fa7138aa46a4e72953c87af72362cd"
+    },
+    {
+      "bytes": 29360,
+      "path": "animations/gameover_win_transition.ild",
+      "sha256": "07b312bbda0dc6e6083dcaa804732c10b41dfd9d980c2d259d606aecb60380dd",
+      "source": "animations/gameover_win_transition.ild",
+      "source_sha256": "07b312bbda0dc6e6083dcaa804732c10b41dfd9d980c2d259d606aecb60380dd"
+    },
+    {
+      "bytes": 112496,
+      "path": "animations/gozub-dance.ild",
+      "sha256": "9ad96998ef4e8015bb43b4fe8a737e21d97eb8739482d62f5098194ff51bb3be",
+      "source": "animations/gozub-dance.ild",
+      "source_sha256": "9ad96998ef4e8015bb43b4fe8a737e21d97eb8739482d62f5098194ff51bb3be"
+    },
+    {
+      "bytes": 1168,
+      "path": "animations/green_circ_plat.ild",
+      "sha256": "8a43c26ce1092a3c55d9bb2829a3a49b191729db47f3e5afdabb868ebb6ada1c",
+      "source": "animations/green_circ_plat.ild",
+      "source_sha256": "8a43c26ce1092a3c55d9bb2829a3a49b191729db47f3e5afdabb868ebb6ada1c"
+    },
+    {
+      "bytes": 872,
+      "path": "animations/green_circle_plat_2.ild",
+      "sha256": "6034d3575553c6f7292819d287cc5110772bea66bf8806daaf842cdd063b403e",
+      "source": "animations/green_circle_plat_2.ild",
+      "source_sha256": "6034d3575553c6f7292819d287cc5110772bea66bf8806daaf842cdd063b403e"
+    },
+    {
+      "bytes": 25672,
+      "path": "animations/key.ild",
+      "sha256": "99bc765a6b4191b4aafa53ac42aebc440b33315ece654c32cd231d18cc68b7c4",
+      "source": "animations/key.ild",
+      "source_sha256": "99bc765a6b4191b4aafa53ac42aebc440b33315ece654c32cd231d18cc68b7c4"
+    },
+    {
+      "bytes": 156288,
+      "path": "animations/leo_sprite.ild",
+      "sha256": "ebd901cef3ce86f495956bca83293338894dc54f3e60bd7e89f63397d63dc9bb",
+      "source": "animations/leo_sprite.ild",
+      "source_sha256": "ebd901cef3ce86f495956bca83293338894dc54f3e60bd7e89f63397d63dc9bb"
+    },
+    {
+      "bytes": 43256,
+      "path": "animations/leo_win-ap.ild",
+      "sha256": "3b15eb9040c6ab9d1b0579214ca0d4c0d05363216c080073ae3fff92fad591a8",
+      "source": "animations/leo_win-ap.ild",
+      "source_sha256": "3b15eb9040c6ab9d1b0579214ca0d4c0d05363216c080073ae3fff92fad591a8"
+    },
+    {
+      "bytes": 156288,
+      "path": "animations/leonard-300pts-44fps.ild",
+      "sha256": "ebd901cef3ce86f495956bca83293338894dc54f3e60bd7e89f63397d63dc9bb",
+      "source": "animations/leonard-300pts-44fps.ild",
+      "source_sha256": "ebd901cef3ce86f495956bca83293338894dc54f3e60bd7e89f63397d63dc9bb"
+    },
+    {
+      "bytes": 2600,
+      "path": "animations/mire_carre.ild",
+      "sha256": "ee65107fe0802cffc0b5a01509106775d2f310e8475f3e43875511877d39dfed",
+      "source": "animations/mire_carre.ild",
+      "source_sha256": "ee65107fe0802cffc0b5a01509106775d2f310e8475f3e43875511877d39dfed"
+    },
+    {
+      "bytes": 792,
+      "path": "animations/plat-4c.ild",
+      "sha256": "834e91d7b55f4635c04dec02495dc0a99d60b852555613fcd854fe7211c05067",
+      "source": "animations/plat-4c.ild",
+      "source_sha256": "834e91d7b55f4635c04dec02495dc0a99d60b852555613fcd854fe7211c05067"
+    },
+    {
+      "bytes": 6952,
+      "path": "animations/plate_fun.ild",
+      "sha256": "2a2ea3edb9f8a7ba34609918ed1c02d447150ef4f89c0d5ef73705a50223ef18",
+      "source": "animations/plate_fun.ild",
+      "source_sha256": "2a2ea3edb9f8a7ba34609918ed1c02d447150ef4f89c0d5ef73705a50223ef18"
+    },
+    {
+      "bytes": 12656,
+      "path": "animations/push-ap.ild",
+      "sha256": "6213c3c53781279e208dfc415aed23f30adcf38bc377dc42fe10a84d2f7173fb",
+      "source": "animations/push-ap.ild",
+      "source_sha256": "6213c3c53781279e208dfc415aed23f30adcf38bc377dc42fe10a84d2f7173fb"
+    },
+    {
+      "bytes": 7600,
+      "path": "animations/push_start.ild",
+      "sha256": "6ceb99bb6b4a38c8279e58772bbeea8cafaf1774001a21f42d797a2fe948f216",
+      "source": "animations/push_start.ild",
+      "source_sha256": "6ceb99bb6b4a38c8279e58772bbeea8cafaf1774001a21f42d797a2fe948f216"
+    },
+    {
+      "bytes": 20592,
+      "path": "animations/start-ap.ild",
+      "sha256": "1fe260378b06fff448dcc50ce1d00425de0131cbfb13d60d4dced64cbdba8d26",
+      "source": "animations/start-ap.ild",
+      "source_sha256": "1fe260378b06fff448dcc50ce1d00425de0131cbfb13d60d4dced64cbdba8d26"
+    },
+    {
+      "bytes": 1640,
+      "path": "animations/switch_01.ild",
+      "sha256": "7cfd832d3994935efba57aaa5cb28104c96544b7dc7291e4fca8e29c63e86b3a",
+      "source": "animations/switch_01.ild",
+      "source_sha256": "7cfd832d3994935efba57aaa5cb28104c96544b7dc7291e4fca8e29c63e86b3a"
+    },
+    {
+      "bytes": 1920,
+      "path": "animations/switch_02.ild",
+      "sha256": "f42b6149f9b2a0e55efcd5e9902a6ff20d85ba894ead2ffd2bf6b61a89c9d051",
+      "source": "animations/switch_02.ild",
+      "source_sha256": "f42b6149f9b2a0e55efcd5e9902a6ff20d85ba894ead2ffd2bf6b61a89c9d051"
+    },
+    {
+      "bytes": 19784,
+      "path": "animations/warpzone_spiral.ild",
+      "sha256": "eb5478f29b77f844746d6f5e1eba4ea5789f6fd61cbd791cf54b5f50ea64d357",
+      "source": "animations/warpzone_spiral.ild",
+      "source_sha256": "eb5478f29b77f844746d6f5e1eba4ea5789f6fd61cbd791cf54b5f50ea64d357"
+    },
+    {
+      "bytes": 25312,
+      "path": "animations/win-ap.ild",
+      "sha256": "c449092241ee6c562719e857782ce456232b4de4690130f6544d7ffe5e717066",
+      "source": "animations/win-ap.ild",
+      "source_sha256": "c449092241ee6c562719e857782ce456232b4de4690130f6544d7ffe5e717066"
+    },
+    {
+      "bytes": 22384,
+      "path": "animations/you_win.ild",
+      "sha256": "be88910bf1aa7aea4985aea875561a81c584cb1c94e751ace7142e4724392ef8",
+      "source": "animations/you_win.ild",
+      "source_sha256": "be88910bf1aa7aea4985aea875561a81c584cb1c94e751ace7142e4724392ef8"
+    },
+    {
+      "bytes": 22384,
+      "path": "animations/you_win_boss_transition.ild",
+      "sha256": "be88910bf1aa7aea4985aea875561a81c584cb1c94e751ace7142e4724392ef8",
+      "source": "animations/you_win_boss_transition.ild",
+      "source_sha256": "be88910bf1aa7aea4985aea875561a81c584cb1c94e751ace7142e4724392ef8"
+    },
+    {
+      "bytes": 2340,
+      "path": "blueprints/aaaa.cpl",
+      "sha256": "43b73a3f2c5e8a1d2d14289f97a7d2cac21c2d3b234e7c630cd800e097155b0e",
+      "source": "blueprints/aaaa.cpl",
+      "source_sha256": "43b73a3f2c5e8a1d2d14289f97a7d2cac21c2d3b234e7c630cd800e097155b0e"
+    },
+    {
+      "bytes": 2491,
+      "path": "blueprints/bebeboss.cpl",
+      "sha256": "973cda237fca775a1f4c691f2464f08531273ab39ca63e8b11b8aad12543c963",
+      "source": "blueprints/bebeboss.cpl",
+      "source_sha256": "973cda237fca775a1f4c691f2464f08531273ab39ca63e8b11b8aad12543c963"
+    },
+    {
+      "bytes": 2307,
+      "path": "blueprints/hello.cpl",
+      "sha256": "1ffe836218904063c88e42d6bb947a32cc93450d8627e56a22eb3b06b0b7d29a",
+      "source": "blueprints/hello.cpl",
+      "source_sha256": "1ffe836218904063c88e42d6bb947a32cc93450d8627e56a22eb3b06b0b7d29a"
+    },
+    {
+      "bytes": 4790,
+      "path": "blueprints/hello.json",
+      "sha256": "3e5a519cd1835320e726158419a5bb2bb0584e9405faf9531d921661e5b8c2c9",
+      "source": "blueprints/hello.json",
+      "source_sha256": "3e5a519cd1835320e726158419a5bb2bb0584e9405faf9531d921661e5b8c2c9"
+    },
+    {
+      "bytes": 2295,
+      "path": "blueprints/player_whatever",
+      "sha256": "721812e9c84d39abb85fc6a8621b41cf4f2a85b124469e8344cb29fa5594fde1",
+      "source": "blueprints/player_whatever",
+      "source_sha256": "721812e9c84d39abb85fc6a8621b41cf4f2a85b124469e8344cb29fa5594fde1"
+    },
+    {
+      "bytes": 2486,
+      "path": "blueprints/prout.cpl",
+      "sha256": "afa348fc5b92fc49c2efdb070454951c21c187d2b9e53e0c2ff0c95da0e9f1ca",
+      "source": "blueprints/prout.cpl",
+      "source_sha256": "afa348fc5b92fc49c2efdb070454951c21c187d2b9e53e0c2ff0c95da0e9f1ca"
+    },
+    {
+      "bytes": 25414,
+      "path": "music/boss_particle.ogg",
+      "sha256": "fa70acc621ef405ac9ff386ee7b2bac9532f29cc2981523755ac9687f3ed6a84",
+      "source": "music/boss_particle.pcm",
+      "source_sha256": "d49d8da18dc3b1dd28d100a53dadfe5275cb4dfc3dd9123149129be95503b5b5"
+    },
+    {
+      "bytes": 40091,
+      "path": "music/end_death_bzzzt.ogg",
+      "sha256": "125213972970857a486839170fdb4f64a8387a1b13e50449289a02cffeb599b5",
+      "source": "music/end_death_bzzzt.pcm",
+      "source_sha256": "22d6ae80c26d186e08a92d1860a60972e6eb437b587b404f5387764a9f253bbf"
+    },
+    {
+      "bytes": 32675,
+      "path": "music/end_win.ogg",
+      "sha256": "795b5410e54784ffea37264497f284f12ccdd2a5cde4f5784a57f218275cb3ec",
+      "source": "music/end_win.pcm",
+      "source_sha256": "5c4b457eea95126bb58b14f400aa3422d59db24d070f78ef050132336e30c1f7"
+    },
+    {
+      "bytes": 36861,
+      "path": "music/laser_charge.ogg",
+      "sha256": "bcfc5b726b5013dd63e5f66c07eab3d4f745869e1456431c201f38248c3587ac",
+      "source": "music/laser_charge.pcm",
+      "source_sha256": "c17d319537fbb7d83086ee01d54dc604e1ddcc5b3f4401f816348deee5a4f3a3"
+    },
+    {
+      "bytes": 24117,
+      "path": "music/laser_shoot.ogg",
+      "sha256": "348b262524b2408c08b9979211c0d75b0b65f0ef5abeb404fe0d1d8f35ad4ab2",
+      "source": "music/laser_shoot.pcm",
+      "source_sha256": "1964fc31cc801521d8dba036822ef60ef19475455040f0a2ac5e066631bac426"
+    },
+    {
+      "bytes": 4444599,
+      "path": "music/music_game.ogg",
+      "sha256": "34049b234f8b38b6a2c7a6069d686bfc81363779f6dde878d026d1c9d2ca38f0",
+      "source": "music/music_game.pcm",
+      "source_sha256": "b4fe9542766edbb42c9be288813a47a96ea4e72184f9032ba29f0fadbd4863d7"
+    },
+    {
+      "bytes": 36861,
+      "path": "music/particle_sol.ogg",
+      "sha256": "bcfc5b726b5013dd63e5f66c07eab3d4f745869e1456431c201f38248c3587ac",
+      "source": "music/particle_sol.pcm",
+      "source_sha256": "c17d319537fbb7d83086ee01d54dc604e1ddcc5b3f4401f816348deee5a4f3a3"
+    },
+    {
+      "bytes": 52534,
+      "path": "music/press_start.ogg",
+      "sha256": "8f3ade6b10c538bf63787613be4812f1f874a1e9c88baa35d4aaac8b42000332",
+      "source": "music/press_start.pcm",
+      "source_sha256": "144bf9be3ee40e7e7ee0588be397903033c8e81fbbe7516d72520a5b8006344f"
+    },
+    {
+      "bytes": 27493,
+      "path": "music/warpzone_temp.ogg",
+      "sha256": "715e04cc8850eaf97992b9b2efd0f4aa37a29a198874d4019d229531c7a4783b",
+      "source": "music/warpzone_temp.pcm",
+      "source_sha256": "dfd15b86b923927f75fc35996bbcc3430337021bf9c73ceaf58f71db9770d9b9"
+    }
+  ],
+  "format_version": 1,
+  "included_directories": [
+    "animations",
+    "blueprints",
+    "music",
+    "scenes"
+  ],
+  "provenance": "real-chienpo/src/server/resources",
+  "sounds": {
+    "boss_particle": "music/boss_particle.ogg",
+    "laser_charge": "music/laser_charge.ogg",
+    "laser_shoot": "music/laser_shoot.ogg",
+    "music_game": "music/music_game.ogg",
+    "particle_sol": "music/particle_sol.ogg",
+    "player_death": "music/end_death_bzzzt.ogg",
+    "press_start": "music/press_start.ogg",
+    "warpzone": "music/warpzone_temp.ogg",
+    "win": "music/end_win.ogg"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "source": "/home/franz/project/helios_dac/sdk/cpp",
+  "revision": "d552776553ddb8748d72ebfd1ee46a6b51a13334",
+  "sha256": {
+    "HeliosDac.cpp": "b9476f910a365b1ba0f79ab65a92a4fba99a9e7003cc5293bb6e98b1ce682fd8",
+    "HeliosDac.h": "f509fd739c97aa7d68eaa46748b7e4c29fab7d34e66ac9ff1204d0136ed2c5e3",
+    "LICENSE.md": "d82ce831d173192278d1a8e9b5712da72467eb1950ce8dda6bc618206116ef9a",
+    "README.md": "fcbda4233535a9dc348b4470affb93b3085d4bd9ce5aed3063259eedd2d7626a",
+    "idn/README.md": "13f424fa6688b779f188b9d69768cdb1b9b271e17bb5e6cd9a515b1cd80cb5bc",
+    "idn/idn-hello.h": "768b950f10e84e8073222f4b3681a9527beae8f9f669437db2d0d2beea2f8c3f",
+    "idn/idn-stream.h": "fe37abd984ab968632f6b8957a401bd827f0f30b1d92b8056bc84b1d5db10130",
+    "idn/idn.cpp": "98ec35ee64e94d6a3f30ecf25d16cd1411c7a7242407b67308a4a94fee0523d2",
+    "idn/idn.h": "7c262c1dbd46546d8f70372edb1f8990f4dd53c5ad4e878bb22294ce2a0087d5",
+    "idn/idnServerList.cpp": "5ba61ecc11b67b7ab526d3a212855fdd924037449d41a33e20ea735edbd5d9fc",
+    "idn/idnServerList.h": "2c38e611d0ec972b622746baf9eead96dc71032017ba3572f47d088c7db7f5c5",
+    "idn/plt-posix.cpp": "149040e9da6cbb4f936d7c013bc7b0debf9232cbb532a023e1f8331b354487bc",
+    "idn/plt-posix.h": "d0144bc1fe8fd39e052dcaffdde59620df32531264a71da0029a41988995525c",
+    "idn/plt-windows.cpp": "137d6d4f39172c30977124350ccb5e8f0c6a3b1b70ae311df0f2be99455ed448",
+    "idn/plt-windows.h": "69e5998b91187a5d0c4f8d55c4b80f6141ceb7f2b97abffed8ebb5cd81db4a5e",
+    "libusb.h": "ca94b99bf4ca9c588804eb0b2187f237a165d80b22054a27608abee3280b8eb0",
+    "shared_library/HeliosDacAPI.cpp": "ec1117dd3939cc10f9f7e7b1251639f4b154e987f1149c10b65999ffa99c6210",
+    "shared_library/HeliosDacAPI.h": "37cb6e4f00422eb57cf657c2de9cf519b9ff9b21059980405ac4cd8bd5a6661d"
+  }
+}

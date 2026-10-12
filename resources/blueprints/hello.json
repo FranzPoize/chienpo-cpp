@@ -1,0 +1,267 @@
+{
+    "m_idx": 4,
+    "m_kind": "Player",
+    "m_next_free": 0,
+    "m_entity_selected_index": 0,
+    "m_selection_sub_index": 0,
+    "m_debug_moving_platform": false,
+    "m_debug_start_tick_count": 0,
+    "m_editor_mode": false,
+    "m_game_over": false,
+    "m_game_win": false,
+    "m_tick_count_game_over": 0,
+    "m_tick_count_win": 0,
+    "m_animation_state": "idle",
+    "m_animation_idx": 1,
+    "m_animation_tick_count": 3,
+    "m_animation_path_map": {
+        "idle": [
+            {
+                "path": "chienpo_idle.ild",
+                "m_loop": false,
+                "m_tick_per_frame": 10
+            },
+            {
+                "path": "chienpo_walk-4f.ild",
+                "m_tick_per_frame": 6,
+                "m_loop": false
+            }
+        ],
+        "walk": [
+            {
+                "path": "chienpo_walk-4f.ild",
+                "m_loop": true,
+                "m_tick_per_frame": 10
+            }
+        ],
+        "double_jump": [
+            {
+                "path": "chienpo_doublejump.ild",
+                "m_loop": true,
+                "m_tick_per_frame": 10
+            }
+        ],
+        "jump": [
+            {
+                "path": "chienpo_jump.ild",
+                "m_loop": true,
+                "m_tick_per_frame": 10
+            }
+        ],
+        "climb": [
+            {
+                "path": "chienpo_climb_2f.ild",
+                "m_loop": true,
+                "m_tick_per_frame": 10
+            }
+        ],
+        "dead": [
+            {
+                "path": "chienpo_dead-b.ild",
+                "m_loop": true,
+                "m_tick_per_frame": 10
+            }
+        ]
+    },
+    "m_animation_playing": false,
+    "m_animation_sprite_sequence": 1,
+    "m_accel_x": 0,
+    "m_accel_y": 0.9876543209876546,
+    "m_speed_x": 0,
+    "m_speed_y": 0,
+    "m_grounded": 1,
+    "m_jumps": 0,
+    "m_facing": 0,
+    "m_moving_platform_idx": 0,
+    "m_inside_of_portal": 0,
+    "m_climbing": 0,
+    "m_should_start_climbing": 0,
+    "m_should_stop_climbing": 1,
+    "m_coyote_frame": 0,
+    "m_was_climbing": 0,
+    "m_attack_tick": 0,
+    "m_next_attack": 0,
+    "m_trail_index": 0,
+    "m_should_rebound": 0,
+    "m_trail": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    "m_current_node": 0,
+    "m_direction": 0,
+    "m_loop": false,
+    "m_path_point_idxs": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    "m_path_point_size": 0,
+    "m_portal_destination_idx": 0,
+    "m_angle": 0,
+    "m_laser_delay_attack": 0,
+    "m_cursors_idxs": [
+        0,
+        0,
+        0,
+        0
+    ],
+    "m_cursor_idx": 0,
+    "m_horiz_scaling": 0,
+    "m_vert_scaling": 0,
+    "x": 0.5,
+    "y": 0.969,
+    "xmin": 0,
+    "xmax": 1.5,
+    "ymin": 0,
+    "ymax": 1.5,
+    "m_scale": 0.02,
+    "parent_idx": 3,
+    "first_child_idx": 0,
+    "next_child_idx": 5,
+    "prev_child_idx": 5,
+    "m_scene_type": 0,
+    "m_proj_thing_idx": 0,
+    "m_scale_thing_idx": 0,
+    "m_device": 0,
+    "m_scene_stack": [],
+    "m_distortion_matrix": [
+        [
+            1,
+            0,
+            0
+        ],
+        [
+            0,
+            1,
+            0
+        ],
+        [
+            0,
+            0,
+            1
+        ]
+    ],
+    "m_scaling_matrix": [
+        [
+            1,
+            0,
+            0
+        ],
+        [
+            0,
+            1,
+            0
+        ],
+        [
+            0,
+            0,
+            1
+        ]
+    ],
+    "m_world_to_view_matrix": [
+        [
+            1,
+            0,
+            0
+        ],
+        [
+            0,
+            1,
+            0
+        ],
+        [
+            0,
+            0,
+            1
+        ]
+    ],
+    "m_base_scale_x": 0,
+    "m_base_scale_y": 0,
+    "m_draw_list": [],
+    "m_intensity": 0,
+    "m_device_on": false,
+    "m_point_count": 0,
+    "m_invert_x": false,
+    "m_show_boundary": false,
+    "m_helios_index": -1,
+    "m_cancel_projection": true
+}

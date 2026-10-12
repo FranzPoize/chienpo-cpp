@@ -1,0 +1,8 @@
+/build*/
+/.tools/
+/.deps/
+/.conan/
+/CMakeUserPresets.json
+/__pycache__/
+*.pyc
+/imgui.ini
