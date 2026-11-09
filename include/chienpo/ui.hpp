@@ -1,6 +1,7 @@
 #pragma once
 #include "chienpo/audio.hpp"
 #include "chienpo/helios.hpp"
+#include <unordered_set>
 namespace ad::graphics {
 
 class ApplicationGlfw;
@@ -14,6 +15,8 @@ constexpr float GAME_SIZE = (1 - (LEFT_BAR_SIZE + 2 * ENTITY_LIST_SIZE)) / 3;
 
 struct Ui
 {
+    std::unordered_set<Thing_idx> big_previews;
+    float layout_width = 0, layout_height = 0;
     bool hardware_enabled = true;
     bool show_context = false, show_console = false, show_blanking = false,
          fullscreen = false;

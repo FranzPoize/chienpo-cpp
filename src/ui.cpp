@@ -3,6 +3,7 @@
 #include "chienpo/gameplay.hpp"
 #include "chienpo/persistence.hpp"
 #include "chienpo/render.hpp"
+#include "chienpo/vector_math.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -14,6 +15,17 @@
 
 namespace chienpo {
 namespace {
+ImGuiCond layout_position_condition(const Ui & ui)
+{
+    const auto viewport = ImGui::GetMainViewport()->Size;
+    // Compositors can resize the native window after its first frame. Rebuild
+    // the proportional layout on resize, but leave dragged windows alone
+    // while the viewport is unchanged (including when Big is toggled).
+    return viewport.x != ui.layout_width || viewport.y != ui.layout_height
+               ? ImGuiCond_Always
+               : ImGuiCond_Once;
+}
+
 bool number(const char * name, double & value, double step = .01)
 {
     if (!ImGui::InputDouble(name, &value, step, step * 10, "%.5g"))
@@ -331,8 +343,11 @@ void triggers(Game & game, Thing & thing)
 
 void inspector(Game & game, Ui & ui)
 {
-    ImGui::SetNextWindowPos(ImVec2(1040, 20), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(390, 850), ImGuiCond_FirstUseEver);
+    const auto viewport = ImGui::GetMainViewport()->Size;
+    ImGui::SetNextWindowPos(ImVec2(viewport.x * (1 - 2 * ENTITY_LIST_SIZE), 0),
+                            layout_position_condition(ui));
+    ImGui::SetNextWindowSize(ImVec2(viewport.x * ENTITY_LIST_SIZE, viewport.y),
+                             ImGuiCond_Always);
     if (ImGui::Begin("Entity inspector"))
     {
         auto & thing = game.m_things.get(game.m_entity_selected_index);
@@ -749,58 +764,98 @@ Frame preview_points(const Frame & source, const Thing & device)
 void previews(Game & game, Ui & ui, HeliosOutput & helios)
 {
     Thing_idx remove = 0;
+    const auto viewport = ImGui::GetMainViewport()->Size;
+    const float base_width = viewport.x * GAME_SIZE;
+    const float frame_spacing = ImGui::GetFrameHeightWithSpacing();
     for (std::size_t pos_index = 0; pos_index < game.m_devices.size();
          ++pos_index)
     {
         const Thing_idx device_index = game.m_devices[pos_index];
         Thing & device = game.m_things.get(device_index);
-        const float game_width = ImGui::GetMainViewport()->Size.x;
-        const float game_height =
-            game_width + ImGui::GetFrameHeightWithSpacing() * 5;
+        const float game_width =
+            base_width * (ui.big_previews.count(device_index) ? 2.f : 1.f);
+        const float game_height = game_width + frame_spacing * 5;
+        // Enlarging a screen leaves its neighbours in their original cells.
         const float game_offset_x =
-            game_width - LEFT_BAR_SIZE + game_width * (pos_index % 3);
+            viewport.x * LEFT_BAR_SIZE + base_width * (pos_index % 3);
         const float game_offset_y =
-            (game_height) *floorf(static_cast<float>(pos_index) / 3);
-
+            (base_width + frame_spacing * 5) * (pos_index / 3);
         ImGui::SetNextWindowPos(ImVec2(game_offset_x, game_offset_y),
-                                ImGuiCond_Once);
+                                layout_position_condition(ui));
         ImGui::SetNextWindowSize(ImVec2(game_width, game_height),
-                                 ImGuiCond_Once);
+                                 ImGuiCond_Always);
         const std::string projector_string =
-            device.m_helios_index
+            device.m_helios_index >= 0
                 ? " (Projector " + std::to_string(device.m_helios_index) + ")"
                 : "";
-        const std::string title = "Screen " + device_index + projector_string
-                                  + "###device " + std::to_string(device_index);
-        if (ImGui::Begin(title.c_str()))
+        const std::string title = "Screen " + std::to_string(device_index)
+                                  + projector_string + "###device "
+                                  + std::to_string(device_index);
+        constexpr auto flags = ImGuiWindowFlags_NoResize
+                               | ImGuiWindowFlags_NoScrollbar
+                               | ImGuiWindowFlags_NoScrollWithMouse;
+        if (ImGui::Begin(title.c_str(), nullptr, flags))
         {
             ImGui::PushID(static_cast<int>(device_index));
-            if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
+            if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0))
                 game.m_selected_device_idx = device_index;
-            ImGui::Checkbox("Laser on", &device.m_device_on);
+
+            // Keep the original single-line controls readable in a narrow
+            // three-column preview. Big screens use the normal font size.
+            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(2, 4));
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 3));
+            ImGui::SetWindowFontScale(1.f);
+            const float available = ImGui::GetContentRegionAvail().x;
+            const std::string points =
+                "Points:" + std::to_string(device.m_point_count);
+            const float toolbar_text =
+                ImGui::CalcTextSize("OnProjMapBigProjector").x
+                + ImGui::GetFontSize();
+            const float footer_text =
+                ImGui::CalcTextSize(("Invert xTightness" + points).c_str()).x
+                + ImGui::GetFontSize();
+            const float control_scale = std::min(
+                {1.f, (available - 112.f) / toolbar_text,
+                 (available - (pos_index ? 102.f : 90.f)) / footer_text});
+            ImGui::SetWindowFontScale(std::max(.5f, control_scale));
+
+            ImGui::Checkbox("On", &device.m_device_on);
             ImGui::SameLine();
-            if (ImGui::Button("Proj"))
+            const bool projection_valid =
+                !mat_equal(device.m_distortion_matrix, g_identity_matrix);
+            if (projection_valid)
+                ImGui::PushStyleColor(ImGuiCol_Button,
+                                      IM_COL32(50, 150, 52, 255));
+            const bool projection_clicked = ImGui::Button("Proj");
+            if (projection_valid) ImGui::PopStyleColor();
+            if (projection_clicked)
             {
                 device.m_distortion_matrix = g_identity_matrix;
                 device.m_world_to_view_matrix = g_identity_matrix;
                 switch_device_to_scene(game, device, SceneType::projection);
             }
             ImGui::SameLine();
-            if (ImGui::Button("Map"))
+            const bool map_valid =
+                !mat_equal(device.m_world_to_view_matrix, g_identity_matrix);
+            if (map_valid)
+                ImGui::PushStyleColor(ImGuiCol_Button,
+                                      IM_COL32(50, 150, 52, 255));
+            const bool map_clicked = ImGui::Button("Map");
+            if (map_valid) ImGui::PopStyleColor();
+            if (map_clicked)
                 switch_device_to_scene(game, device, SceneType::scaling);
-            if (ImGui::Button("Game"))
-                switch_device_to_scene(game, device, SceneType::game);
             ImGui::SameLine();
-            if (ImGui::Button("Inspect")) select_entity(game, device_index);
+            if (ImGui::Button("Big"))
+            {
+                if (!ui.big_previews.erase(device_index))
+                    ui.big_previews.insert(device_index);
+            }
             const std::string projector =
                 device.m_helios_index < 0
                     ? "None"
-                    : std::to_string(device.m_helios_index) + " "
-                          + (device.m_helios_index < static_cast<int>(
-                                 helios.device_names.size())
-                                 ? helios.device_names[static_cast<std::size_t>(
-                                       device.m_helios_index)]
-                                 : "Disconnected");
+                    : std::to_string(device.m_helios_index);
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(80);
             if (ImGui::BeginCombo("Projector", projector.c_str()))
             {
                 for (int value = -1; value < helios.device_count; ++value)
@@ -828,64 +883,41 @@ void previews(Game & game, Ui & ui, HeliosOutput & helios)
                 }
                 ImGui::EndCombo();
             }
-            number("Intensity", device.m_intensity, .05);
-            device.m_intensity = std::clamp(device.m_intensity, 0., 1.);
-            ImGui::Checkbox("Area on", &device.m_show_boundary);
+
+            const auto it = game.m_draw_lists.find(device_index);
+            const float canvas_size = ImGui::GetContentRegionAvail().x;
+            draw_points(it != game.m_draw_lists.end()
+                            ? preview_points(it->second, device)
+                            : Frame{},
+                        canvas_size, ui.show_blanking);
+            if (ImGui::IsItemClicked())
+                game.m_selected_device_idx = device_index;
+
+            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * .4f);
+            float intensity = static_cast<float>(device.m_intensity);
+            if (ImGui::DragFloat("intensity", &intensity, .005f, 0.f, 1.f))
+                device.m_intensity =
+                    std::clamp(static_cast<double>(intensity), 0., 1.);
             ImGui::SameLine();
-            ImGui::Checkbox("Invert x", &device.m_invert_x);
-            number("Tightness", device.m_tightness, 1);
-            device.m_tightness = std::clamp(device.m_tightness, 0., 100.);
-            ImGui::Checkbox("Cancel projection in preview",
-                            &device.m_cancel_projection);
-            number("FPS", device.m_fps, 1);
-            device.m_fps = std::clamp(device.m_fps, 1., 1000.);
-            auto & scene = get_current_scene(game.m_things, device_index);
-            ImGui::Text("Scene: %s | points: %d",
-                        to_string(scene.m_scene_type).data(),
-                        device.m_point_count);
-            if (scene.m_scene_type == SceneType::projection
-                || scene.m_scene_type == SceneType::scaling)
+            ImGui::Checkbox("Area on", &device.m_show_boundary);
+            if (pos_index != 0)
             {
-                if (scene.m_scene_type == SceneType::projection)
-                {
-                    ImGui::SliderInt("Corner", &scene.m_cursor_idx, 0, 3);
-                    auto & corner = scene.m_cursors[static_cast<std::size_t>(
-                        std::clamp(scene.m_cursor_idx, 0, 3))];
-                    number("Corner x", corner.x);
-                    ImGui::SameLine();
-                    number("Corner y", corner.y);
-                }
-                else
-                {
-                    number("Horizontal scale", scene.m_horiz_scaling);
-                    number("Vertical scale", scene.m_vert_scaling);
-                }
-                if (ImGui::Button("Confirm calibration (Enter)"))
-                {
-                    CommandState command;
-                    command.confirm.positive_edge = true;
-                    update_calibration(game, scene, command);
-                }
+                if (ImGui::Button("x")) remove = device_index;
                 ImGui::SameLine();
-                if (ImGui::Button("Reset calibration"))
-                {
-                    scene.m_cursors = base_cursor_list;
-                    scene.m_horiz_scaling = scene.m_vert_scaling = .1;
-                }
             }
-            auto it = game.m_draw_lists.find(device_index);
-            const auto size =
-                std::max(40.f, std::min(ImGui::GetContentRegionAvail().x,
-                                        ImGui::GetContentRegionAvail().y - 32));
-            if (it != game.m_draw_lists.end())
-            {
-                draw_points(preview_points(it->second, device), size,
-                            ui.show_blanking);
-                if (ImGui::IsItemClicked())
-                    game.m_selected_device_idx = device_index;
-            }
-            if (game.m_devices.size() > 1 && ImGui::Button("Remove screen"))
-                remove = device_index;
+            ImGui::Checkbox("Invert x", &device.m_invert_x);
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(70);
+            int tightness = static_cast<int>(device.m_tightness);
+            if (ImGui::InputInt("Tightness", &tightness))
+                device.m_tightness = std::clamp(tightness, 0, 100);
+            ImGui::SameLine();
+            ImGui::TextUnformatted(points.c_str());
+            int fps = static_cast<int>(device.m_fps);
+            if (ImGui::InputInt("FPS", &fps))
+                device.m_fps = std::clamp(fps, 1, 1000);
+            ImGui::SetWindowFontScale(1.f);
+            ImGui::PopStyleVar(2);
             ImGui::PopID();
         }
         ImGui::End();
@@ -897,6 +929,7 @@ void previews(Game & game, Ui & ui, HeliosOutput & helios)
         game.m_devices.erase(
             std::remove(game.m_devices.begin(), game.m_devices.end(), remove),
             game.m_devices.end());
+        ui.big_previews.erase(remove);
         game.m_selected_device_idx = game.m_devices.front();
         game.m_entity_selected_index = 0;
     }
@@ -904,8 +937,11 @@ void previews(Game & game, Ui & ui, HeliosOutput & helios)
 
 void data(Game & game, Ui & ui, Audio & audio)
 {
-    ImGui::SetNextWindowPos(ImVec2(10, 470), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(255, 400), ImGuiCond_FirstUseEver);
+    const auto viewport = ImGui::GetMainViewport()->Size;
+    ImGui::SetNextWindowPos(ImVec2(viewport.x * (1 - ENTITY_LIST_SIZE), 0),
+                            layout_position_condition(ui));
+    ImGui::SetNextWindowSize(ImVec2(viewport.x * ENTITY_LIST_SIZE, viewport.y),
+                             ImGuiCond_Always);
     if (ImGui::Begin("Data") && ImGui::BeginTabBar("Data tabs"))
     {
         if (ImGui::BeginTabItem("Entities"))
@@ -1371,15 +1407,17 @@ void controls(Game & game,
               HeliosOutput & helios,
               ad::graphics::ApplicationGlfw & application)
 {
-    ImGui::SetNextWindowPos(ImVec2(10, 20), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(255, 440), ImGuiCond_FirstUseEver);
+    const float left_width = ImGui::GetMainViewport()->Size.x * LEFT_BAR_SIZE;
+    const float control_height = 300 + ImGui::GetFrameHeightWithSpacing();
+    ImGui::SetNextWindowPos(ImVec2(0, 0), layout_position_condition(ui));
+    ImGui::SetNextWindowSize(ImVec2(left_width, control_height),
+                             ImGuiCond_Always);
     if (ImGui::Begin("Game control"))
     {
         ImGui::TextWrapped("Level: %s", game.m_current_game.c_str());
         ImGui::Text("%s | tick %llu", game.m_editor_mode ? "Editor" : "Playing",
                     static_cast<unsigned long long>(game.m_tick_count));
         if (ImGui::Button("Start / Restart")) game.start_game();
-        ImGui::SameLine();
         if (ImGui::Button(game.m_editor_mode ? "Play mode" : "Back to editor"))
             game.switch_mode();
         if (ImGui::Button("New world"))
@@ -1390,7 +1428,6 @@ void controls(Game & game,
                 game.m_things.get(index).m_device_on = false;
             game.m_current_game = "autosave";
         }
-        ImGui::SameLine();
         if (ImGui::Button("Stop sound"))
         {
             game.stop_sound();
@@ -1403,7 +1440,6 @@ void controls(Game & game,
             create_projection_for_device(game, index);
             game.m_selected_device_idx = index;
         }
-        ImGui::SameLine();
         ImGui::BeginDisabled(!ui.hardware_enabled);
         if (ImGui::Button("Scan Helios"))
         {
@@ -1442,27 +1478,30 @@ void controls(Game & game,
                                      ui.window_width, ui.window_height,
                                      GLFW_DONT_CARE);
         }
-        ImGui::SameLine();
         if (ImGui::Button("Quit")) application.markWindowShouldClose();
         ImGui::Checkbox("Game context", &ui.show_context);
-        ImGui::SameLine();
         ImGui::Checkbox("Console", &ui.show_console);
         ImGui::Checkbox("Show blanking", &ui.show_blanking);
         ImGui::Checkbox("Draw bounds", &game.m_context.m_draw_bounds);
-        if (ImGui::CollapsingHeader("Entity palette",
-                                    ImGuiTreeNodeFlags_DefaultOpen))
+    }
+    ImGui::End();
+
+    ImGui::SetNextWindowPos(ImVec2(0, control_height),
+                            layout_position_condition(ui));
+    ImGui::SetNextWindowSize(
+        ImVec2(left_width, 250 + ImGui::GetFrameHeightWithSpacing()),
+        ImGuiCond_Always);
+    if (ImGui::Begin("Entities palette"))
+    {
+        constexpr EntityType palette[]{
+            EntityType::platform,    EntityType::move_platform,
+            EntityType::masking_box, EntityType::neon_boss,
+            EntityType::portal,      EntityType::decor,
+            EntityType::laser,       EntityType::trigger,
+            EntityType::player,      EntityType::spawner};
+        for (auto type : palette)
         {
-            constexpr EntityType palette[]{
-                EntityType::platform,    EntityType::move_platform,
-                EntityType::masking_box, EntityType::neon_boss,
-                EntityType::portal,      EntityType::decor,
-                EntityType::laser,       EntityType::trigger,
-                EntityType::player,      EntityType::spawner};
-            for (auto type : palette)
-            {
-                if (ImGui::Button(to_string(type).data()))
-                    add_entity(game, type);
-            }
+            if (ImGui::Button(to_string(type).data())) add_entity(game, type);
         }
         if (ImGui::CollapsingHeader("Keyboard"))
             ImGui::TextWrapped(
@@ -1522,6 +1561,7 @@ void draw_ui(Game & game,
              ad::graphics::ApplicationGlfw & application,
              double delta)
 {
+    const auto viewport = ImGui::GetMainViewport()->Size;
     controls(game, ui, audio, helios, application);
     previews(game, ui, helios);
     data(game, ui, audio);
@@ -1529,6 +1569,8 @@ void draw_ui(Game & game,
     context(game, ui);
     animation_browser(game, ui, delta);
     console(game, ui, audio, helios);
+    ui.layout_width = viewport.x;
+    ui.layout_height = viewport.y;
     if (!game.m_errors.empty())
     {
         ImGui::SetNextWindowSize(ImVec2(540, 180), ImGuiCond_FirstUseEver);
