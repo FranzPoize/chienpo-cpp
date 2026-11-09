@@ -1,5 +1,6 @@
 #include "chienpo/render.hpp"
 
+#include "chienpo/vector_math.hpp"
 #include <algorithm>
 #include <cmath>
 #include <fstream>
@@ -389,9 +390,7 @@ void calibration_drawing(Pen & pen, const Thing & scene)
     else
         pen.rect({.5, .5}, (v[1].x - v[0].x) / .2 * .03,
                  (v[2].y - v[0].y) / .2 * .03, {1, .3, 1});
-    auto mid = [](Vec2 a, Vec2 b) {
-        return Vec2{(a.x + b.x) / 2, (a.y + b.y) / 2};
-    };
+    auto mid = [](Vec2 a, Vec2 b) { return mul_v(add_v(a, b), 1.0 / 2); };
     pen.segment(mid(v[0], v[1]), mid(v[2], v[3]), {0, 1, 1});
     pen.segment(mid(v[0], v[3]), mid(v[1], v[2]), {0, 1, 1});
     if (scene.m_scene_type == SceneType::scaling)
