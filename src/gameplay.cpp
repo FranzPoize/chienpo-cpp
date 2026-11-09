@@ -14,10 +14,12 @@ double positive(double value, double fallback)
 {
     return std::isfinite(value) && value > epsilon ? value : fallback;
 }
+
 int wrap(int value, int size)
 {
     return size > 0 ? (value % size + size) % size : 0;
 }
+
 Box bounds(const Thing & thing)
 {
     const double x1 = thing.x + thing.xmin * thing.m_scale,
@@ -27,11 +29,13 @@ Box bounds(const Thing & thing)
     return {std::min(x1, x2), std::max(x1, x2), std::min(y1, y2),
             std::max(y1, y2)};
 }
+
 bool overlaps(const Box & a, const Box & b)
 {
     return a.xmax > b.xmin && a.xmin < b.xmax && a.ymax > b.ymin
            && a.ymin < b.ymax;
 }
+
 Vec2 penetration(const Box & a, const Box & b)
 {
     const double offsets[]{b.xmin - a.xmax, b.xmax - a.xmin, b.ymin - a.ymax,
@@ -41,17 +45,20 @@ Vec2 penetration(const Box & a, const Box & b)
         if (std::abs(offsets[i]) < std::abs(offsets[best])) best = i;
     return best < 2 ? Vec2{offsets[best], 0} : Vec2{0, offsets[best]};
 }
+
 Vec2 world_size(const Thing & thing)
 {
     const auto & device = thing.m_things->get(thing.parent_idx).parent();
     return {1 / positive(std::abs(device.m_base_scale_x), 1),
             1 / positive(std::abs(device.m_base_scale_y), 1)};
 }
+
 bool solid(EntityType kind)
 {
     return kind == EntityType::platform || kind == EntityType::move_platform
            || kind == EntityType::masking_box;
 }
+
 void animation(Thing & thing,
                const char * state,
                const char * asset,
@@ -60,6 +67,7 @@ void animation(Thing & thing,
 {
     thing.m_animation_path_map[state].push_back({asset, loop, ticks});
 }
+
 double default_scale(const Game & game, EntityType kind)
 {
     switch (kind)
@@ -76,6 +84,7 @@ double default_scale(const Game & game, EntityType kind)
         return 1;
     }
 }
+
 void move_platform(Game & game, Thing & platform)
 {
     platform.m_speed_x = platform.m_speed_y = 0;
@@ -117,6 +126,7 @@ void move_platform(Game & game, Thing & platform)
     platform.m_speed_x = (platform.x - old.x) / game.m_delta_time;
     platform.m_speed_y = (platform.y - old.y) / game.m_delta_time;
 }
+
 Vec2 platform_speed(Game & game, const Thing & player)
 {
     const auto & platform = game.m_things.get(player.m_moving_platform_idx);
@@ -125,6 +135,7 @@ Vec2 platform_speed(Game & game, const Thing & player)
         return {};
     return {platform.m_speed_x, platform.m_speed_y};
 }
+
 void kill_player(Game & game, Thing & player)
 {
     if (player.m_dead) return;
@@ -134,6 +145,7 @@ void kill_player(Game & game, Thing & player)
     player.m_trigger_events.push_back(TriggerActionType::death);
     game.queue_sound("player_death", "end_death_bzzzt.pcm");
 }
+
 void player_contacts(Game & game,
                      Thing & player,
                      const Box & previous,
@@ -272,6 +284,7 @@ void player_contacts(Game & game,
         player.m_jumps = 0;
     }
 }
+
 void update_player(Game & game, Thing & player, const CommandState & requested)
 {
     const CommandState idle{};
@@ -410,6 +423,7 @@ void update_player(Game & game, Thing & player, const CommandState & requested)
     if (player.m_speed_x > .01) player.m_facing = 1;
     else if (player.m_speed_x < -.01) player.m_facing = 0;
 }
+
 Thing_idx boss_projectile(
     Game & game, Thing_idx parent, Vec2 pos, Vec2 velocity, bool split)
 {
@@ -427,6 +441,7 @@ Thing_idx boss_projectile(
     }
     return idx;
 }
+
 void update_boss(Game & game, Thing & boss)
 {
     advance_animation(game, boss);
@@ -474,6 +489,7 @@ void update_boss(Game & game, Thing & boss)
             std::max(.05, delay) / positive(boss.m_tick_duration, .01);
     }
 }
+
 void update_boss_projectile(Game & game, Thing & proj)
 {
     const double dt = game.m_delta_time;
@@ -566,6 +582,7 @@ void update_boss_projectile(Game & game, Thing & proj)
     }
     remove_hierarchy(game.m_things, proj.m_idx);
 }
+
 void update_laser(Game & game, Thing & laser)
 {
     laser.m_attack_tick += game.m_delta_time;
@@ -589,6 +606,7 @@ void update_laser(Game & game, Thing & laser)
     proj.m_laser_ondulating_color = laser.m_laser_ondulating_color;
     laser.m_trigger_events.push_back(TriggerActionType::shot);
 }
+
 void update_laser_projectile(Game & game, Thing & proj)
 {
     proj.x +=
@@ -601,6 +619,7 @@ void update_laser_projectile(Game & game, Thing & proj)
         || proj.y > extent.y + margin || proj.y < -margin)
         remove_hierarchy(game.m_things, proj.m_idx);
 }
+
 // Return true when restarting invalidates every reference into the pool.
 bool fire_trigger(Game & game, const Trigger & trigger)
 {
@@ -652,6 +671,7 @@ bool fire_trigger(Game & game, const Trigger & trigger)
     }
     return false;
 }
+
 bool update_triggers(Game & game, Thing & thing, const CommandState & command)
 {
     // Consume a snapshot: events emitted onto this entity while executing
@@ -702,6 +722,7 @@ bool update_triggers(Game & game, Thing & thing, const CommandState & command)
     if (consumed_count) thing.m_count -= count;
     return false;
 }
+
 } // namespace
 
 Thing_idx
@@ -795,6 +816,7 @@ make_entity(Game & game, EntityType kind, Thing_idx parent, double x, double y)
     }
     return idx;
 }
+
 Thing_idx spawn_player(Game & game, Thing_idx scene, double x, double y)
 {
     return make_entity(game, EntityType::player, scene, x, y);
@@ -1009,4 +1031,5 @@ void update_editor(Game & game, Thing & scene, const CommandState & command)
         }
     }
 }
+
 } // namespace chienpo

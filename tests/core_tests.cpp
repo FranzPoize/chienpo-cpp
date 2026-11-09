@@ -514,6 +514,109 @@ void drawing_bounds_and_masks(const std::filesystem::path& root) {
     check(std::none_of(points.begin(),points.end(),[&](const auto& p){return visible(p)&&p.x>.40001&&p.x<.59999;}),
           "active mask uses scaled collision bounds for blanking");
 }
+void outside_drawing_detours(const std::filesystem::path& root) {
+    auto game=std::make_unique<Game>(root);
+    const auto scene=empty_game_scene(*game);
+    auto& device=game->m_things.get(game->m_selected_device_idx);
+    device.m_tightness=4;
+    auto& first=game->m_things.get(make_entity(*game,EntityType::platform,scene,.1,.2));
+    first.xmin=first.ymin=0; first.xmax=.1; first.m_scale=1;
+    auto& outside=game->m_things.get(make_entity(*game,EntityType::platform,scene,1.2,.7));
+    outside.xmin=outside.ymin=0; outside.xmax=.3; outside.m_scale=1;
+    auto& last=game->m_things.get(make_entity(*game,EntityType::platform,scene,.7,.8));
+    last.xmin=last.ymin=0; last.xmax=.1; last.m_scale=1;
+    auto draw=[&] { build_draw_lists(*game); return game->m_draw_lists.at(device.m_idx); };
+    auto lit=[](const DacPoint& p) { return p.r!=0||p.g!=0||p.b!=0; };
+    outside.m_show=last.m_show=false;
+    const auto first_only=draw();
+    first.m_show=false; last.m_show=true;
+    const auto last_only=draw();
+    const auto first_lit=std::count_if(first_only.begin(),first_only.end(),lit);
+    const auto last_lit=std::count_if(last_only.begin(),last_only.end(),lit);
+    first.m_show=outside.m_show=true;
+    auto points=draw();
+    check(points.size()==first_only.size()+2+last_lit,
+          "outside sampled stroke and its blank travel leave only retained strokes and blank connection anchors");
+    check(std::all_of(points.begin(),points.end(),[](const auto& p) { return p.x>=.1&&p.x<=.8; }),
+          "outside sampled stroke and dwells leave no outside or border placeholders");
+    auto next=std::find_if(points.begin(),points.end(),[&](const auto& p) { return lit(p)&&close(p.y,.8); });
+    check(next!=points.end()&&next!=points.begin()&&!lit(*std::prev(next))
+          &&close(std::prev(next)->x,.7)&&close(std::prev(next)->y,.8),
+          "next retained stroke starts at its own blank anchor");
+    check(std::count_if(points.begin(),points.end(),[&](const auto& p) { return lit(p)&&close(p.y,.2); })==first_lit
+          &&std::count_if(points.begin(),points.end(),[&](const auto& p) { return lit(p)&&close(p.y,.8); })==last_lit,
+          "adjacent retained strokes keep all lit samples and dwells");
+    last.m_show=false;
+    points=draw();
+    check(points.size()==first_only.size()+1&&same(points.back(),DacPoint{.2,.2,0,0,0}),
+          "removed final stroke preserves blank shutoff at the last retained endpoint");
+    first.m_show=false; last.m_show=true;
+    points=draw();
+    check(points.size()==1+std::size_t(last_lit)&&same(points.front(),DacPoint{.7,.8,0,0,0}),
+          "removed leading stroke reconnects at the retained stroke's blank start");
+    first.m_show=last.m_show=false;
+    points=draw();
+    check(points.size()==1&&same(points[0],DacPoint{.5,.5,0,0,0}),"fully rejected frame uses black center fallback");
+    outside.m_show=false;
+    auto& sprite=game->m_things.get(make_entity(*game,EntityType::decor,scene,0,0));
+    sprite.xmin=sprite.xmax=sprite.ymin=sprite.ymax=0; sprite.m_scale=1;
+    game->m_frame_cache.m_frame_cache["clipping-fixture"]={Frame{}};
+    add_animation_to_thing(*game,sprite,"test","clipping-fixture",1,true);
+    auto frame=[&](Frame input) {
+        game->m_frame_cache.m_frame_cache["clipping-fixture"]={std::move(input)};
+        return draw();
+    };
+    points=frame({{.2,.2,0,0,0},{.3,.2,1,0,0},{1.2,.4,0,0,0},
+                  {1.4,.6,0,0,0},{.7,.8,0,0,0},{.8,.8,0,1,0}});
+    check(std::none_of(points.begin(),points.end(),[](const auto& p) { return p.x>.8; }),
+          "wholly blank outside detour leaves no outside or edge points");
+    next=std::find_if(points.begin(),points.end(),[](const auto& p) { return p.g==1; });
+    check(next!=points.end()&&next!=points.begin()&&same(*std::prev(next),DacPoint{.7,.8,0,0,0}),
+          "blank detour retains its on-screen destination anchor");
+    points=frame({{-1,.5,0,0,0},{2,.5,1,0,0}});
+    check(std::any_of(points.begin(),points.end(),[&](const auto& p) { return lit(p)&&close(p.x,0)&&close(p.y,.5); })
+          &&std::any_of(points.begin(),points.end(),[&](const auto& p) { return lit(p)&&close(p.x,1)&&close(p.y,.5); }),
+          "outside-to-outside crossing retains its visible screen span");
+    points=frame({{.2,.4,0,0,0},{.4,.4,1,0,0},{1.2,.4,1,0,0},
+                  {1.4,.6,0,1,0},{.6,.6,0,0,1}});
+    check(std::any_of(points.begin(),points.end(),[](const auto& p) { return p.r==1&&close(p.x,1)&&close(p.y,.4); })
+          &&std::any_of(points.begin(),points.end(),[](const auto& p) { return p.b==1&&close(p.x,1)&&close(p.y,.6); })
+          &&std::any_of(points.begin(),points.end(),[](const auto& p) { return p.b==1&&close(p.x,.6)&&close(p.y,.6); }),
+          "outside portion of a partly visible stroke preserves adjacent lit exits and entries");
+    points=frame({{-1,1,0,0,0},{1,-1,1,0,0}});
+    check(points.size()==1&&same(points[0],DacPoint{.5,.5,0,0,0}),"corner-only tangency has no visible stroke to retain");
+    points=frame({{-.5,0,0,0,0},{1.5,0,1,0,0}});
+    check(std::any_of(points.begin(),points.end(),[&](const auto& p) { return lit(p)&&close(p.x,1)&&close(p.y,0); }),
+          "border-aligned crossing retains its visible length");
+    points=frame({{0,.4,0,0,0},{0,.4,1,0,0},{0,.4,1,0,0}});
+    check(std::count_if(points.begin(),points.end(),lit)==2,"on-screen border dwells remain visible");
+    points=frame({{1.2,.4,0,0,0},{1.4,.6,0,0,0}});
+    check(points.size()==1&&same(points[0],DacPoint{.5,.5,0,0,0}),"fully outside blank frame uses black center fallback");
+    points=frame({{.2,.2,0,0,0},{.3,.2,1,0,0},{.3,.2,0,0,0},{.3,.2,0,0,0},
+                  {1.2,.4,0,0,0},{1.4,.6,1,0,0}});
+    check(points.size()>=3&&same(points[points.size()-3],DacPoint{.3,.2,1,0,0})
+          &&same(points[points.size()-2],DacPoint{.3,.2,0,0,0})
+          &&same(points.back(),DacPoint{.3,.2,0,0,0}),
+          "outside stroke removal preserves original blank shutoff dwells");
+    points=frame({{.2,.2,0,0,0},{.3,.2,1,0,0},{1.2,.4,0,0,0},{1.4,.6,1,0,0}});
+    check(same(points.back(),DacPoint{.3,.2,0,0,0}),
+          "direct outside blank jump still leaves a blank shutoff after removing the final stroke");
+    points=frame({{-1,.5,0,0,0},{.5,.5,1,0,0},{2,.5,0,0,0}});
+    check(same(points.back(),DacPoint{.5,.5,0,0,0}),
+          "removed outside blank-only tail leaves blank shutoff at the retained endpoint");
+    points=frame({{-1,.5,0,0,0},{.5,.5,1,0,0},{.5,.5,0,0,0},{.5,.5,0,0,0},{2,.5,0,0,0}});
+    check(points.size()>=3&&same(points[points.size()-3],DacPoint{.5,.5,1,0,0})
+          &&same(points[points.size()-2],DacPoint{.5,.5,0,0,0})
+          &&same(points.back(),DacPoint{.5,.5,0,0,0}),
+          "outside blank-only tail removal preserves stationary blank shutoff dwells");
+    const Frame retained{{.2,.2,0,0,0},{.3,.2,1,0,0},{.7,.8,0,0,0},{.8,.8,0,1,0}};
+    const auto baseline=frame(retained);
+    auto& mask=game->m_things.get(make_entity(*game,EntityType::masking_box,scene,.1,.1));
+    mask.xmin=mask.ymin=0; mask.xmax=.8; mask.ymax=.8; mask.m_scale=1;
+    points=draw();
+    check(points.size()==baseline.size()&&std::none_of(points.begin(),points.end(),lit),
+          "mask still blanks retained geometry without deleting points");
+}
 void gameplay(const std::filesystem::path& root) {
     auto game=std::make_unique<Game>(root);
     const auto scene=empty_game_scene(*game);
@@ -610,6 +713,7 @@ int main() {
         {"blueprint subtree and self-reference remapping",[&]{blueprints(scratch.path/"blueprints");}},
         {"ILDA decoding, homography and animation loops",[&]{render_and_animation(scratch.path/"render");}},
         {"scaled drawing and active masking",[&]{drawing_bounds_and_masks(scratch.path/"masks");}},
+        {"outside drawing detours and blank reconnection",[&]{outside_drawing_detours(scratch.path/"clipping");}},
         {"jump, moving platforms and delayed triggers",[&]{gameplay(scratch.path/"gameplay");}},
         {"cross-device portals and projectile death",[&]{portals_and_death(scratch.path/"portals");}},
         {"fresh calibration through gameplay",[&]{fresh_workflow(scratch.path/"fresh");}}

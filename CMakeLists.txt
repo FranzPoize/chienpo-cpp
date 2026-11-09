@@ -9,7 +9,8 @@ option(CHIENPO_BUILD_TESTS "Build headless game and persistence tests" ON)
 include(CTest)
 
 add_library(chienpo_core
-    src/types.cpp src/game.cpp src/gameplay.cpp src/render.cpp src/persistence.cpp
+    src/types.cpp src/game.cpp src/gameplay.cpp src/render.cpp src/vector_math.cpp
+    src/persistence.cpp
     third_party/cjson/cJSON.c)
 target_include_directories(chienpo_core PUBLIC include PRIVATE third_party/cjson)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -37,4 +38,8 @@ if(CHIENPO_BUILD_TESTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests/core_tests.
     target_compile_definitions(chienpo_core_tests PRIVATE CHIENPO_RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources")
     add_test(NAME chienpo_core COMMAND chienpo_core_tests)
     set_tests_properties(chienpo_core PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
+    add_executable(chienpo_vector_math_tests tests/vector_math_tests.cpp)
+    target_link_libraries(chienpo_vector_math_tests PRIVATE chienpo_core)
+    add_test(NAME chienpo_vector_math COMMAND chienpo_vector_math_tests)
 endif()
