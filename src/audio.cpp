@@ -4,6 +4,7 @@
 #include <memory>
 #include <sounds/Logging.h>
 #include <sounds/SoundManager.h>
+#include <soundui/SoundUi.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 namespace chienpo {
 namespace {

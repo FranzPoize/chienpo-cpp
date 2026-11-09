@@ -7,6 +7,7 @@
 #include <imguiui/ImguiUi.h>
 #include <iostream>
 #include <memory>
+#include <soundui/SoundUi.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 #include <stdexcept>
@@ -103,6 +104,7 @@ int main(int argc, char ** argv)
         application.getAppInterface()->registerKeyCallback(
             [](int, int, int, int) {});
         ad::imguiui::ImguiUi imgui{application};
+        ad::sounds::initSoundUi();
         imgui.registerGlfwCallbacks(application);
         chienpo::Ui ui;
         ui.hardware_enabled = options.helios;
@@ -114,6 +116,7 @@ int main(int argc, char ** argv)
             chienpo::HeliosOutput & helios;
             ~Cleanup()
             {
+                ad::sounds::cleanupSoundUi();
                 chienpo::audio_close(audio);
                 chienpo::helios_close(helios);
             }
