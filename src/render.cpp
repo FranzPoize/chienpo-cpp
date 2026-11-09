@@ -313,6 +313,89 @@ void entity(Game & g, Pen & pen, Thing & t, bool editor)
     }
 }
 
+// Drop invisible strokes before clipping changes their original blanking.
+// A stroke includes all consecutive lit samples and dwells between blank moves.
+void remove_outside_strokes(Frame & points, Box b)
+{
+    auto inside = [&](const DacPoint & p) {
+        return p.x >= b.xmin && p.x <= b.xmax && p.y >= b.ymin
+               && p.y <= b.ymax;
+    };
+    auto visible_segment = [&](const DacPoint & a, const DacPoint & z) {
+        double enter = 0, leave = 1;
+        auto axis = [&](double start, double end, double low, double high) {
+            if (start == end) return start >= low && start <= high;
+            double t0 = (low - start) / (end - start),
+                   t1 = (high - start) / (end - start);
+            if (t0 > t1) std::swap(t0, t1);
+            enter = std::max(enter, t0);
+            leave = std::min(leave, t1);
+            return enter < leave;
+        };
+        // A single tangent contact has no visible length. Stationary samples
+        // inside the closed screen bounds are visible dwells.
+        return axis(a.x, z.x, b.xmin, b.xmax)
+               && axis(a.y, z.y, b.ymin, b.ymax);
+    };
+    Frame out;
+    out.reserve(points.size());
+    bool skipped = false;
+    for (std::size_t i = 0; i < points.size();)
+    {
+        const auto move = i;
+        while (i < points.size() && blank(points[i])) ++i;
+        const auto stroke = i;
+        bool visible = false;
+        while (i < points.size() && !blank(points[i]))
+        {
+            visible |= visible_segment(points[i ? i - 1 : i], points[i]);
+            ++i;
+        }
+        if (stroke < i && !visible)
+        {
+            if (!out.empty() && !blank(out.back()))
+            {
+                auto stop = out.back();
+                stop.r = stop.g = stop.b = 0;
+                auto k = move;
+                while (k < stroke && points[k].x == stop.x
+                       && points[k].y == stop.y)
+                    out.push_back(points[k++]);
+                // Keep the beam off at the retained endpoint even if the
+                // removed stroke was the last one in the frame.
+                if (k == move) out.push_back(stop);
+            }
+            skipped = true;
+            continue;
+        }
+        if (skipped)
+        {
+            // Reconnect directly to the next retained stroke with its original
+            // blank start point, without replaying travel to the deleted one.
+            if (stroke < i && stroke > move)
+                out.push_back(points[stroke - 1]);
+        }
+        else
+        {
+            for (auto k = move; k < stroke; ++k)
+                // Preserve on-screen blank samples and the start anchor of a
+                // retained lit segment, including an outside crossing start.
+                if (inside(points[k]) || (k + 1 == stroke && stroke < i))
+                    out.push_back(points[k]);
+        }
+        // Removing a wholly outside blank tail must not leave the beam on.
+        if (stroke == i && move < stroke && !out.empty() && !blank(out.back()))
+        {
+            auto stop = out.back();
+            stop.r = stop.g = stop.b = 0;
+            out.push_back(stop);
+        }
+        out.insert(out.end(), points.begin() + stroke, points.begin() + i);
+        skipped = false;
+    }
+    points.swap(out);
+}
+
 // Split every segment at each box boundary. This also handles a segment whose
 // endpoints both lie outside a mask, preserving blanking across the interior.
 void clip(Frame & points, Box b, bool keep_inside)
@@ -799,7 +882,9 @@ void build_draw_lists(Game & g)
                                                            : 1,
                    sy = std::abs(d.m_base_scale_y) > 1e-12 ? d.m_base_scale_y
                                                            : 1;
-            clip(points, {0, 1 / sx, 0, 1 / sy}, true);
+            const Box screen{0, 1 / sx, 0, 1 / sy};
+            remove_outside_strokes(points, screen);
+            clip(points, screen, true);
             for (auto child : g.m_things.children(scene.m_idx, true))
             {
                 auto & t = g.m_things.get(child);
