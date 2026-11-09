@@ -3,6 +3,7 @@
 #include "chienpo/gameplay.hpp"
 #include "chienpo/persistence.hpp"
 #include "chienpo/render.hpp"
+#include "chienpo/types.hpp"
 #include "chienpo/vector_math.hpp"
 #include <algorithm>
 #include <cmath>
@@ -37,8 +38,8 @@ bool number(const char * name, double & value, double step = .01)
 
 bool text_input(const char * label, std::string & value)
 {
-    if (!ImGui::InputText(label, value.data(),
-                          std::max<std::size_t>(1024, value.size() + 256)))
+    value.reserve(256);
+    if (!ImGui::InputText(label, value.data(), 256))
     {
         return false;
     }
@@ -128,21 +129,42 @@ void select_entity(Game & game, Thing_idx index)
 
 void tree(Game & game, Thing_idx index, std::size_t depth = 0)
 {
-    if (depth >= MAX_THINGS) return;
-    auto & thing = game.m_things.get(index);
-    if (!ent_valid(thing)) return;
-    auto children = game.m_things.children(index);
-    auto flags =
+    if (depth >= MAX_THINGS)
+    {
+        return;
+    }
+    Thing & thing = game.m_things.get(index);
+    if (!ent_valid(thing) || thing.m_scene_type == SceneType::projection
+        || thing.m_scene_type == SceneType::scaling)
+    {
+        return;
+    }
+    std::vector<Thing_idx> children = game.m_things.children(index);
+    ImGuiTreeNodeFlags flags =
         ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+
     if (index == game.m_entity_selected_index)
+    {
         flags |= ImGuiTreeNodeFlags_Selected;
-    if (children.empty()) flags |= ImGuiTreeNodeFlags_Leaf;
-    if (depth < 2) ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-    const bool opened = ImGui::TreeNodeEx(
-        reinterpret_cast<void *>(static_cast<std::uintptr_t>(index)), flags,
-        "%s", label(thing).c_str());
+    }
+    if (children.empty())
+    {
+        flags |= ImGuiTreeNodeFlags_Leaf;
+    }
+    if (depth < 2)
+    {
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+    }
+
+    const std::string thing_label = label(thing);
+
+    const bool opened = ImGui::TreeNodeEx(reinterpret_cast<void *>(index),
+                                          flags, "%s", thing_label.c_str());
+
     if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+    {
         select_entity(game, index);
+    }
     if (opened)
     {
         for (auto child : children)
@@ -155,60 +177,86 @@ std::filesystem::path named_path(const std::filesystem::path & folder,
                                  const char * name,
                                  const char * extension)
 {
-    auto filename = std::filesystem::path(name).filename();
+    std::filesystem::path filename = std::filesystem::path(name).filename();
+
     if (filename.empty() || filename == "." || filename == "..")
+    {
         filename = "untitled";
-    if (filename.extension().empty()) filename += extension;
+    }
+    if (filename.extension().empty())
+    {
+        filename += extension;
+    }
     return folder / filename;
 }
 
 Thing_idx current_scene(Game & game)
 {
-    auto & scene = get_current_scene(game.m_things, game.m_selected_device_idx);
+    Thing & scene =
+        get_current_scene(game.m_things, game.m_selected_device_idx);
+
     if (scene.m_scene_type == SceneType::projection
         || scene.m_scene_type == SceneType::scaling || !ent_valid(scene))
     {
         auto & device = game.m_things.get(game.m_selected_device_idx);
         switch_device_to_scene(game, device, SceneType::game);
     }
+
     return get_current_scene(game.m_things, game.m_selected_device_idx).m_idx;
 }
 
 void add_entity(Game & game, EntityType type)
 {
-    const auto parent = current_scene(game);
-    const auto index = make_entity(game, type, parent);
-    if (index) select_entity(game, index);
+    const Thing_idx parent = current_scene(game);
+    const Thing_idx index = make_entity(game, type, parent);
+
+    if (index)
+    {
+        select_entity(game, index);
+    }
+}
+
+inline ImVec2 screen(const ImVec2 & origin, const DacPoint & p, float size)
+{
+    return ImVec2(origin.x + static_cast<float>(p.x) * size,
+                  origin.y + static_cast<float>(p.y) * size);
 }
 
 void draw_points(const Frame & points, float size, bool blanking)
 {
-    auto * draw = ImGui::GetWindowDrawList();
-    auto origin = ImGui::GetCursorScreenPos();
+    ImDrawList * draw = ImGui::GetWindowDrawList();
+    const ImVec2 origin = ImGui::GetCursorScreenPos();
+
     ImGui::InvisibleButton("canvas", ImVec2(size, size));
     draw->AddRectFilled(origin, ImVec2(origin.x + size, origin.y + size),
                         IM_COL32(4, 7, 12, 255));
     draw->PushClipRect(origin, ImVec2(origin.x + size, origin.y + size), true);
-    const auto screen = [&](const DacPoint & p) {
-        return ImVec2(origin.x + static_cast<float>(p.x) * size,
-                      origin.y + static_cast<float>(p.y) * size);
-    };
+
     for (std::size_t i = 1; i < points.size(); ++i)
     {
-        const auto & p = points[i];
-        const auto & previous = points[i - 1];
+        const DacPoint & p = points[i];
+        const DacPoint & previous = points[i - 1];
+
         if (!std::isfinite(p.x) || !std::isfinite(p.y)
             || !std::isfinite(previous.x) || !std::isfinite(previous.y))
+        {
             continue;
+        }
+
         const bool dark = p.r == 0 && p.g == 0 && p.b == 0;
-        if (dark && !blanking) continue;
+        if (dark && !blanking)
+        {
+            continue;
+        }
+
         auto byte = [](double v) {
             return static_cast<int>(std::clamp(v, 0., 1.) * 255);
         };
         const auto color = dark
                                ? IM_COL32(0, 75, 110, 110)
                                : IM_COL32(byte(p.r), byte(p.g), byte(p.b), 255);
-        draw->AddLine(screen(previous), screen(p), color, 1.4f);
+        draw->AddLine(screen(origin, previous, size), screen(origin, p, size),
+                      color, 1.4f);
     }
     draw->PopClipRect();
     draw->AddRect(origin, ImVec2(origin.x + size, origin.y + size),
@@ -240,13 +288,17 @@ void animation_choice(Ui & ui,
     }
 }
 
-void animations(Game & game, Ui & ui, Thing & thing)
+void animations(Ui & ui, Thing & thing)
 {
     if (!ImGui::CollapsingHeader("Animation states",
                                  ImGuiTreeNodeFlags_DefaultOpen))
+    {
         return;
+    }
+
     ImGui::Checkbox("Playing", &thing.m_playing);
     ImGui::Checkbox("Animation playing", &thing.m_animation_playing);
+
     std::string remove_state;
     for (auto & [state, clips] : thing.m_animation_path_map)
     {
@@ -254,9 +306,15 @@ void animations(Game & game, Ui & ui, Thing & thing)
         if (ImGui::TreeNode(state.c_str()))
         {
             if (ImGui::Button("Play state"))
+            {
                 change_animation_state(thing, state);
+            }
             ImGui::SameLine();
-            if (ImGui::Button("Delete state")) remove_state = state;
+            if (ImGui::Button("Delete state"))
+            {
+                remove_state = state;
+            }
+
             for (std::size_t i = 0; i < clips.size(); ++i)
             {
                 ImGui::PushID(static_cast<int>(i));
@@ -275,7 +333,12 @@ void animations(Game & game, Ui & ui, Thing & thing)
                 }
                 ImGui::PopID();
             }
-            if (ImGui::Button("Add clip")) animation_choice(ui, thing, state);
+
+            if (ImGui::Button("Add clip"))
+            {
+                animation_choice(ui, thing, state);
+            }
+
             ImGui::TreePop();
         }
         ImGui::PopID();
@@ -287,24 +350,45 @@ void animations(Game & game, Ui & ui, Thing & thing)
             thing.m_animation_state.clear();
     }
     ImGui::InputText("New state", ui.new_state, sizeof(ui.new_state));
+
     if (ImGui::Button("Create state") && ui.new_state[0])
+    {
         thing.m_animation_path_map.try_emplace(ui.new_state);
+    }
+
     ImGui::Text(
         "Current: %s | clip %d | tick %.1f", thing.m_animation_state.c_str(),
         thing.m_animation_sprite_sequence, thing.m_animation_tick_count);
-    (void) game;
 }
 
 void triggers(Game & game, Thing & thing)
 {
     if (!ImGui::CollapsingHeader("Triggers", ImGuiTreeNodeFlags_DefaultOpen))
+    {
         return;
-    if (ImGui::Button("Add trigger")) thing.m_triggers.emplace_back();
+    }
+
+    if (ImGui::Button("Add trigger"))
+    {
+        std::string name = "Trigger " + std::to_string(thing.m_triggers.size());
+        name.reserve(256);
+        thing.m_triggers.emplace_back(name);
+    }
+
     for (std::size_t i = 0; i < thing.m_triggers.size(); ++i)
     {
-        auto & trigger = thing.m_triggers[i];
+        Trigger & trigger = thing.m_triggers[i];
         ImGui::PushID(static_cast<int>(i));
         ImGui::Separator();
+        ImGui::InputText("name", trigger.m_name.data(), 256);
+        ImGui::SameLine();
+        if (ImGui::Button("X"))
+        {
+            thing.m_triggers.erase(thing.m_triggers.begin()
+                                   + static_cast<std::ptrdiff_t>(i));
+            ImGui::PopID();
+            break;
+        }
         enum_combo("When", trigger.m_trigger_action,
                    TriggerActionType::on_start);
         number("Count", trigger.m_trigger_count_target, 1);
@@ -314,11 +398,13 @@ void triggers(Game & game, Thing & thing)
         number("Chance (0..1)", trigger.m_trigger_percentage, .05);
         trigger.m_trigger_percentage =
             std::clamp(trigger.m_trigger_percentage, 0., 1.);
+        ImGui::Text("Targets");
         for (std::size_t j = 0; j < trigger.m_trigger_target.size(); ++j)
         {
             ImGui::PushID(static_cast<int>(j));
             entity_combo(game, "Target", trigger.m_trigger_target[j]);
-            if (ImGui::SmallButton("Remove target"))
+            ImGui::SameLine();
+            if (ImGui::SmallButton("X"))
             {
                 trigger.m_trigger_target.erase(
                     trigger.m_trigger_target.begin()
@@ -329,14 +415,6 @@ void triggers(Game & game, Thing & thing)
             ImGui::PopID();
         }
         if (ImGui::Button("Add target")) trigger.m_trigger_target.push_back(0);
-        ImGui::SameLine();
-        if (ImGui::Button("Remove trigger"))
-        {
-            thing.m_triggers.erase(thing.m_triggers.begin()
-                                   + static_cast<std::ptrdiff_t>(i));
-            ImGui::PopID();
-            break;
-        }
         ImGui::PopID();
     }
 }
@@ -423,6 +501,19 @@ void inspector(Game & game, Ui & ui)
                     }
                 }
             }
+            if (ImGui::CollapsingHeader("States",
+                                        ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImGui::Checkbox("Active", &thing.m_active);
+                ImGui::Checkbox("Visible", &thing.m_show);
+                ImGui::Checkbox("Collision", &thing.m_collision);
+                ImGui::Checkbox("Don't mask", &thing.m_no_masking);
+                ImGui::Checkbox("Dead", &thing.m_dead);
+                ImGui::Text("Grounded %.0f | jumps %d | climbing %d",
+                            thing.m_grounded, thing.m_jumps, thing.m_climbing);
+                ImGui::Text("Parent %u | first child %u", thing.parent_idx,
+                            thing.first_child_idx);
+            }
             if (ImGui::CollapsingHeader("Transform and bounds",
                                         ImGuiTreeNodeFlags_DefaultOpen))
             {
@@ -435,37 +526,43 @@ void inspector(Game & game, Ui & ui)
                 number("ymax", thing.ymax);
                 number("Sprite offset x", thing.m_sprite_offset_x);
                 number("Sprite offset y", thing.m_sprite_offset_y);
-                ImGui::Checkbox("Active", &thing.m_active);
-                ImGui::Checkbox("Visible", &thing.m_show);
-                ImGui::Checkbox("Collision", &thing.m_collision);
-                ImGui::Checkbox("Don't mask", &thing.m_no_masking);
                 number("Intensity modifier", thing.m_intensity_modifier);
             }
-            if (thing.m_kind == EntityType::portal)
-                entity_combo(game, "Destination portal",
-                             thing.m_portal_destination_idx,
-                             EntityType::portal);
-            if (thing.m_kind == EntityType::neon_boss)
+            if (ImGui::CollapsingHeader("Game data",
+                                        ImGuiTreeNodeFlags_DefaultOpen))
             {
-                number("Attack delay", thing.m_boss_avg_attack_delay, .1);
-                number("Attack variance", thing.m_boss_attack_variance, .1);
-            }
-            if (thing.m_kind == EntityType::trigger)
-                number("Counter", thing.m_count, 1);
-            if (thing.m_kind == EntityType::laser)
-            {
-                number("Angle", thing.m_angle);
-                number("Attack delay", thing.m_laser_delay_attack, .1);
-                number("Alarm delay", thing.m_laser_delay_alarm, .1);
-                number("Projectile speed", thing.m_laser_proj_speed);
-                number("Projectile size", thing.m_laser_proj_size);
-                number("Projectile folds", thing.m_laser_proj_fold, 1);
-                number("Projectile scale y", thing.m_laser_proj_scale_y);
-                number("Projectile start x", thing.m_laser_proj_start_pos.x);
-                number("Projectile start y", thing.m_laser_proj_start_pos.y);
-                ImGui::Checkbox("Ondulation", &thing.m_laser_ondulating);
-                ImGui::Checkbox("Color ondulation",
-                                &thing.m_laser_ondulating_color);
+                number("Speed x", thing.m_speed_x);
+                number("Speed y", thing.m_speed_y);
+                number("Acceleration x", thing.m_accel_x);
+                number("Acceleration y", thing.m_accel_y);
+                if (thing.m_kind == EntityType::portal)
+                    entity_combo(game, "Destination portal",
+                                 thing.m_portal_destination_idx,
+                                 EntityType::portal);
+                if (thing.m_kind == EntityType::neon_boss)
+                {
+                    number("Attack delay", thing.m_boss_avg_attack_delay, .1);
+                    number("Attack variance", thing.m_boss_attack_variance, .1);
+                }
+                if (thing.m_kind == EntityType::trigger)
+                    number("Counter", thing.m_count, 1);
+                if (thing.m_kind == EntityType::laser)
+                {
+                    number("Angle", thing.m_angle);
+                    number("Attack delay", thing.m_laser_delay_attack, .1);
+                    number("Alarm delay", thing.m_laser_delay_alarm, .1);
+                    number("Projectile speed", thing.m_laser_proj_speed);
+                    number("Projectile size", thing.m_laser_proj_size);
+                    number("Projectile folds", thing.m_laser_proj_fold, 1);
+                    number("Projectile scale y", thing.m_laser_proj_scale_y);
+                    number("Projectile start x",
+                           thing.m_laser_proj_start_pos.x);
+                    number("Projectile start y",
+                           thing.m_laser_proj_start_pos.y);
+                    ImGui::Checkbox("Ondulation", &thing.m_laser_ondulating);
+                    ImGui::Checkbox("Color ondulation",
+                                    &thing.m_laser_ondulating_color);
+                }
             }
             if (thing.m_kind == EntityType::move_platform
                 && ImGui::CollapsingHeader("Motion path",
@@ -509,20 +606,8 @@ void inspector(Game & game, Ui & ui)
                 number("Horizontal scaling", thing.m_horiz_scaling);
                 number("Vertical scaling", thing.m_vert_scaling);
             }
-            animations(game, ui, thing);
+            animations(ui, thing);
             triggers(game, thing);
-            if (ImGui::CollapsingHeader("Runtime values"))
-            {
-                number("Speed x", thing.m_speed_x);
-                number("Speed y", thing.m_speed_y);
-                number("Acceleration x", thing.m_accel_x);
-                number("Acceleration y", thing.m_accel_y);
-                ImGui::Text("Grounded %.0f | jumps %d | climbing %d",
-                            thing.m_grounded, thing.m_jumps, thing.m_climbing);
-                ImGui::Text("Parent %u | first child %u", thing.parent_idx,
-                            thing.first_child_idx);
-                ImGui::Checkbox("Dead", &thing.m_dead);
-            }
             ImGui::PopID();
         }
         else
@@ -899,7 +984,7 @@ void previews(Game & game, Ui & ui, HeliosOutput & helios)
                 device.m_intensity =
                     std::clamp(static_cast<double>(intensity), 0., 1.);
             ImGui::SameLine();
-            ImGui::Checkbox("Area on", &device.m_show_boundary);
+            ImGui::Checkbox("Boundary on", &device.m_show_boundary);
             if (pos_index != 0)
             {
                 if (ImGui::Button("x")) remove = device_index;

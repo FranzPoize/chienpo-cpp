@@ -5,17 +5,17 @@
 
 namespace chienpo {
 
-Vec2 mul_v(Vec2 vector, double scalar)
+Vec2 mul_v(const Vec2 & vector, double scalar)
 {
     return {vector.x * scalar, vector.y * scalar};
 }
 
-Vec2 add_v(Vec2 vector, Vec2 other)
+Vec2 add_v(const Vec2 & vector, const Vec2 & other)
 {
     return {vector.x + other.x, vector.y + other.y};
 }
 
-Vec2 sub_v(Vec2 vector, Vec2 other)
+Vec2 sub_v(const Vec2 & vector, const Vec2 & other)
 {
     return {vector.x - other.x, vector.y - other.y};
 }
@@ -27,7 +27,10 @@ bool mat_equal(const TransformMatrix & a, const TransformMatrix & b)
            && a[2][0] == b[2][0] && a[2][1] == b[2][1] && a[2][2] == b[2][2];
 }
 
-std::optional<Vec2> intersect_lines(Vec2 a1, Vec2 a2, Vec2 b1, Vec2 b2)
+std::optional<Vec2> intersect_lines(const Vec2 & a1,
+                                    const Vec2 & a2,
+                                    const Vec2 & b1,
+                                    const Vec2 & b2)
 {
     const double denominator =
         -((a1.x - a2.x) * (b1.y - b2.y) - (a1.y - a2.y) * (b1.x - b2.x));
@@ -50,8 +53,10 @@ double floor_modulo(double numerator, double divisor)
     return numerator - divisor * std::floor(numerator / divisor);
 }
 
-std::optional<Vec2>
-intersect_line_and_box(Vec2 a1, Vec2 a2, Vec2 origin, const Box & box)
+std::optional<Vec2> intersect_line_and_box(const Vec2 & a1,
+                                           const Vec2 & a2,
+                                           const Vec2 & origin,
+                                           const Box & box)
 {
     const std::array<Vec2, 5> box_points{{
         {origin.x + box.xmin, origin.y + box.ymin},

@@ -24,9 +24,13 @@ Color hsv(double h)
 }
 
 bool blank(const DacPoint & p) { return p.r == 0 && p.g == 0 && p.b == 0; }
+
 Vec2 pos(const Thing & t) { return {t.x, t.y}; }
+
 Vec2 pos(const DacPoint & t) { return {t.x, t.y}; }
+
 Color col(const DacPoint & t) { return {t.r, t.g, t.b}; }
+
 struct Pen
 {
     Thing & device;
@@ -318,8 +322,7 @@ void entity(Game & g, Pen & pen, Thing & t, bool editor)
 void remove_outside_strokes(Frame & points, Box b)
 {
     auto inside = [&](const DacPoint & p) {
-        return p.x >= b.xmin && p.x <= b.xmax && p.y >= b.ymin
-               && p.y <= b.ymax;
+        return p.x >= b.xmin && p.x <= b.xmax && p.y >= b.ymin && p.y <= b.ymax;
     };
     auto visible_segment = [&](const DacPoint & a, const DacPoint & z) {
         double enter = 0, leave = 1;
@@ -334,8 +337,7 @@ void remove_outside_strokes(Frame & points, Box b)
         };
         // A single tangent contact has no visible length. Stationary samples
         // inside the closed screen bounds are visible dwells.
-        return axis(a.x, z.x, b.xmin, b.xmax)
-               && axis(a.y, z.y, b.ymin, b.ymax);
+        return axis(a.x, z.x, b.xmin, b.xmax) && axis(a.y, z.y, b.ymin, b.ymax);
     };
     Frame out;
     out.reserve(points.size());
@@ -343,7 +345,8 @@ void remove_outside_strokes(Frame & points, Box b)
     for (std::size_t i = 0; i < points.size();)
     {
         const auto move = i;
-        while (i < points.size() && blank(points[i])) ++i;
+        while (i < points.size() && blank(points[i]))
+            ++i;
         const auto stroke = i;
         bool visible = false;
         while (i < points.size() && !blank(points[i]))
@@ -372,8 +375,7 @@ void remove_outside_strokes(Frame & points, Box b)
         {
             // Reconnect directly to the next retained stroke with its original
             // blank start point, without replaying travel to the deleted one.
-            if (stroke < i && stroke > move)
-                out.push_back(points[stroke - 1]);
+            if (stroke < i && stroke > move) out.push_back(points[stroke - 1]);
         }
         else
         {

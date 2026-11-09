@@ -25,6 +25,12 @@
 },
 {
   "directory": "/home/franz/project/chienpo-cpp/build-native",
+  "command": "/usr/bin/c++ -D_GLIBCXX_USE_CXX11_ABI=0 -I/home/franz/project/chienpo-cpp/include -I/home/franz/project/chienpo-cpp/third_party/cjson -m64 -O3 -DNDEBUG -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles/chienpo_core.dir/src/vector_math.cpp.o -c /home/franz/project/chienpo-cpp/src/vector_math.cpp",
+  "file": "/home/franz/project/chienpo-cpp/src/vector_math.cpp",
+  "output": "/home/franz/project/chienpo-cpp/build-native/CMakeFiles/chienpo_core.dir/src/vector_math.cpp.o"
+},
+{
+  "directory": "/home/franz/project/chienpo-cpp/build-native",
   "command": "/usr/bin/c++ -D_GLIBCXX_USE_CXX11_ABI=0 -I/home/franz/project/chienpo-cpp/include -I/home/franz/project/chienpo-cpp/third_party/cjson -m64 -O3 -DNDEBUG -std=c++20 -Wall -Wextra -Wpedantic -o CMakeFiles/chienpo_core.dir/src/persistence.cpp.o -c /home/franz/project/chienpo-cpp/src/persistence.cpp",
   "file": "/home/franz/project/chienpo-cpp/src/persistence.cpp",
   "output": "/home/franz/project/chienpo-cpp/build-native/CMakeFiles/chienpo_core.dir/src/persistence.cpp.o"
@@ -64,6 +70,12 @@
   "command": "/usr/bin/c++ -DCHIENPO_RESOURCE_DIR=\\\"/home/franz/project/chienpo-cpp/resources\\\" -D_GLIBCXX_USE_CXX11_ABI=0 -I/home/franz/project/chienpo-cpp/include -m64 -O3 -DNDEBUG -std=c++20 -o CMakeFiles/chienpo_core_tests.dir/tests/core_tests.cpp.o -c /home/franz/project/chienpo-cpp/tests/core_tests.cpp",
   "file": "/home/franz/project/chienpo-cpp/tests/core_tests.cpp",
   "output": "/home/franz/project/chienpo-cpp/build-native/CMakeFiles/chienpo_core_tests.dir/tests/core_tests.cpp.o"
+},
+{
+  "directory": "/home/franz/project/chienpo-cpp/build-native",
+  "command": "/usr/bin/c++ -D_GLIBCXX_USE_CXX11_ABI=0 -I/home/franz/project/chienpo-cpp/include -m64 -O3 -DNDEBUG -std=c++20 -o CMakeFiles/chienpo_vector_math_tests.dir/tests/vector_math_tests.cpp.o -c /home/franz/project/chienpo-cpp/tests/vector_math_tests.cpp",
+  "file": "/home/franz/project/chienpo-cpp/tests/vector_math_tests.cpp",
+  "output": "/home/franz/project/chienpo-cpp/build-native/CMakeFiles/chienpo_vector_math_tests.dir/tests/vector_math_tests.cpp.o"
 },
 {
   "directory": "/home/franz/project/chienpo-cpp/build-native",

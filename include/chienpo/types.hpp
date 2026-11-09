@@ -123,6 +123,7 @@ struct FrameCache
 };
 struct Trigger
 {
+    std::string m_name;
     TriggerType m_trigger_type = TriggerType::no_trigger;
     std::vector<Thing_idx> m_trigger_target;
     double m_trigger_count_target = 0;
