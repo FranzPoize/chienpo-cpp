@@ -78,10 +78,14 @@ int main(int argc, char ** argv)
                                      + options.resources.string());
         // The large fixed entity pool belongs on the heap, including on
         // small-stack hosts.
-        auto game = std::make_unique<chienpo::Game>(options.resources, 0);
+        Game * game = std::make_unique<chienpo::Game>(options.resources, 0);
         chienpo::refresh_resources(*game);
+
         for (auto index : game->m_devices)
+        {
             game->m_things.get(index).m_device_on = false;
+        }
+
         if (options.headless)
         {
             const auto frames = options.frames ? options.frames : 1;
@@ -96,8 +100,9 @@ int main(int argc, char ** argv)
                       << " device(s), fresh calibration world\n";
             return 0;
         }
+
         // ApplicationGlfw initializes and owns its graphics/OpenGL loggers.
-        ad::graphics::ApplicationGlfw application{"Chienpo", 1440, 900};
+        ad::graphics::ApplicationGlfw application{"Chienpo", 1920, 1080};
         // Replace ApplicationGlfw's default Escape-to-close callback. Escape
         // belongs to editor cancellation; GLFW still handles the title-bar
         // close button normally.
@@ -106,10 +111,11 @@ int main(int argc, char ** argv)
         ad::imguiui::ImguiUi imgui{application};
         ad::sounds::initSoundUi();
         imgui.registerGlfwCallbacks(application);
+        chienpo::Audio & audio = game->audio;
         chienpo::Ui ui;
         ui.hardware_enabled = options.helios;
-        chienpo::Audio audio;
         chienpo::HeliosOutput helios;
+
         struct Cleanup
         {
             chienpo::Audio & audio;

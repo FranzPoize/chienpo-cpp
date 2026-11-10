@@ -9,32 +9,40 @@
 #include <vector>
 
 namespace chienpo {
+
 using Thing_idx = std::uint32_t;
 using Sprite_idx = Thing_idx;
 using Frame_idx = Thing_idx;
 using Point_idx = Thing_idx;
+
 inline constexpr std::size_t MAX_THINGS = 1024;
+
 struct Vec2
 {
     double x = 0, y = 0;
 };
+
 struct Box
 {
     double xmin = 0, xmax = 0, ymin = 0, ymax = 0;
 };
+
 struct Size
 {
     double width = 0, height = 0;
 };
+
 struct Color
 {
     double r = 0, g = 0, b = 0;
 };
+
 using ColorArray = std::array<double, 3>;
 struct DacPoint
 {
     double x = 0, y = 0, r = 0, g = 0, b = 0;
 };
+
 using TransformMatrix = std::array<std::array<double, 3>, 3>;
 inline constexpr TransformMatrix g_identity_matrix{
     {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}};
@@ -68,6 +76,7 @@ enum class EntityType
     device_parent,
     trigger
 };
+
 std::string_view to_string(EntityType value);
 bool from_string(std::string_view text, EntityType & value);
 enum class TriggerActionType : uint8_t
@@ -79,6 +88,7 @@ enum class TriggerActionType : uint8_t
     on_count,
     on_start
 };
+
 std::string_view to_string(TriggerActionType value);
 bool from_string(std::string_view text, TriggerActionType & value);
 enum class TriggerType : uint8_t
@@ -92,6 +102,7 @@ enum class TriggerType : uint8_t
     lose,
     start_game
 };
+
 std::string_view to_string(TriggerType value);
 bool from_string(std::string_view text, TriggerType & value);
 enum class SceneType : uint8_t
@@ -104,6 +115,7 @@ enum class SceneType : uint8_t
     game_over,
     game_win
 };
+
 std::string_view to_string(SceneType value);
 bool from_string(std::string_view text, SceneType & value);
 SceneType string_to_scene_type(std::string_view value);
@@ -114,6 +126,7 @@ struct Animation
     bool m_loop = false;
     double m_tick_per_frame = 1;
 };
+
 using AnimationPathMap = std::map<std::string, std::vector<Animation>>;
 using Frame = std::vector<DacPoint>;
 using Frames = std::vector<Frame>;
@@ -121,6 +134,7 @@ struct FrameCache
 {
     std::map<std::string, Frames> m_frame_cache;
 };
+
 struct Trigger
 {
     std::string m_name;
@@ -131,6 +145,7 @@ struct Trigger
     double m_trigger_percentage = 1, m_trigger_delay = 0, m_trigger_elapsed = 0;
     bool m_triggered = false;
 };
+
 struct GameContext
 {
     double m_jump_max_height = 0.2;
@@ -179,16 +194,20 @@ struct GameContext
     double m_smoothing_step_number_short = 6;
     double m_stop_on_end_point = 3;
 };
+
 struct ContextFieldInfo
 {
     const char * name;
     bool zero_allowed = true;
     const char * type = "number";
 };
+
 inline constexpr std::array<ContextFieldInfo, 2> game_context_info{
     {{"m_max_player_horizontal_speed", false, "number"},
      {"m_center_bounds", true, "vec2"}}};
+
 struct Things;
+
 struct Thing
 {
     Things * m_things = nullptr;
@@ -305,6 +324,7 @@ struct Thing
     Thing & last_child();
     Thing_idx last_child_idx() const;
 };
+
 struct Things
 {
     std::array<Thing, MAX_THINGS> m_things{};
@@ -343,6 +363,7 @@ struct Things
     Iterator begin();
     Iterator end();
 };
+
 bool ent_valid(const Thing & thing);
 bool add_child(Things & things, Thing_idx parent, Thing_idx child);
 void remove_child(Things & things, Thing_idx child);
@@ -359,6 +380,7 @@ struct Command
 {
     bool pressed = false, positive_edge = false, negative_edge = false;
 };
+
 struct Input
 {
     bool next_entity = false;
@@ -388,6 +410,7 @@ struct Input
     bool reset_scale = false;
     bool loop_platform = false;
 };
+
 struct CommandState
 {
     Command next_entity;
@@ -417,6 +440,7 @@ struct CommandState
     Command reset_scale;
     Command loop_platform;
 };
+
 void transform_command_state(CommandState & state, const Input & input);
 void remove_command_edges(CommandState & state);
 } // namespace chienpo

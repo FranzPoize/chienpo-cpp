@@ -101,7 +101,6 @@ void audio_update(Audio & audio, Game & game)
     if (!audio.available || !audio.implementation) return;
     auto & impl = *static_cast<AudioImpl *>(audio.implementation);
     audio.muted = game.m_no_sound;
-    ad::sounds::DisplaySoundUi(impl.manager->getInfo());
     for (const auto & event : events)
     {
         if (event.type == SoundEvent::Type::StopAll)

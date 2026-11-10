@@ -63,11 +63,19 @@ void Game::reset_game(int device_count)
     m_autosave_enabled = false;
     m_autosave_elapsed = 0;
     m_command_state_list.assign(1, CommandState{});
+
     for (int i = 0; i < std::max(1, m_helios_count); ++i)
+    {
         add_device(*this, m_helios_count ? i : -1);
+    }
+
     m_selected_device_idx = m_devices.front();
+
     for (auto idx : m_devices)
+    {
         create_projection_for_device(*this, idx);
+    }
+
     ++m_world_revision;
 }
 
@@ -89,12 +97,19 @@ void Game::update(const std::vector<Input> & inputs, double delta)
                                 i < inputs.size() ? inputs[i] : Input{});
     const auto commands = m_command_state_list.front();
     for (auto & thing : m_things)
+    {
         reset_thing_frame_lifetime_value(m_context, thing);
-    const auto devices = m_devices;
+    }
+
+    const std::vector<Thing_idx> & devices = m_devices;
+
     for (auto idx : devices)
     {
-        auto & scene = get_current_scene(m_things, idx);
-        if (!ent_valid(scene)) continue;
+        Thing & scene = get_current_scene(m_things, idx);
+        if (!ent_valid(scene))
+        {
+            continue;
+        }
         const auto revision = m_world_revision;
         switch (scene.m_scene_type)
         {
@@ -119,18 +134,30 @@ void Game::update(const std::vector<Input> & inputs, double delta)
         // Loading a level invalidates this tick's snapshot of scene indices.
         if (revision != m_world_revision) break;
     }
-    if (commands.switch_mode.positive_edge) switch_mode();
+
+    if (commands.switch_mode.positive_edge)
+    {
+        switch_mode();
+    }
+
     apply_deferred_reparents();
+
     build_draw_lists(*this);
+
     if (m_editor_mode && m_autosave_enabled)
     {
         m_autosave_elapsed += m_delta_time;
         if (m_autosave_elapsed >= 10)
         {
             m_autosave_elapsed = 0;
-            auto name = m_current_game;
-            if (name.find("autosave") == std::string::npos) name += "_autosave";
-            const auto editing_name = m_current_game;
+            std::string name = m_current_game;
+
+            if (name.find("autosave") == std::string::npos)
+            {
+                name += "_autosave";
+            }
+
+            const std::string editing_name = m_current_game;
             save_level(*this, m_paths.levels / (name + ".cpl"));
             m_current_game = editing_name;
         }
@@ -173,6 +200,8 @@ void Game::switch_mode()
 
 void Game::start_game(bool reload)
 {
+    stop_sound();
+
     if (reload)
     {
         if (m_editor_mode)
@@ -185,18 +214,27 @@ void Game::start_game(bool reload)
             if (!load_level(*this, current_level_path(*this))) return;
         }
     }
-    stop_sound();
+
     switch_game_to_scene(*this, SceneType::game);
-    Thing_idx player = 0, spawner = 0;
+
+    Thing_idx player = 0;
+    Thing_idx spawner = 0;
     for (auto & thing : m_things)
     {
-        if (!player && thing.m_kind == EntityType::player) player = thing.m_idx;
+        if (!player && thing.m_kind == EntityType::player)
+        {
+            player = thing.m_idx;
+        }
+
         if (!spawner && thing.m_kind == EntityType::spawner)
+        {
             spawner = thing.m_idx;
+        }
     }
+
     if (spawner)
     {
-        auto spawn = m_things.get(spawner);
+        const Thing & spawn = m_things.get(spawner);
         if (player)
         {
             auto & p = m_things.get(player);
@@ -216,8 +254,12 @@ void Game::start_game(bool reload)
             change_animation_state(p, "idle");
             p.new_parent_after_transaction = spawn.parent_idx;
         }
-        else spawn_player(*this, spawn.parent_idx, spawn.x, spawn.y);
+        else
+        {
+            spawn_player(*this, spawn.parent_idx, spawn.x, spawn.y);
+        }
     }
+
     for (auto & thing : m_things)
     {
         if (thing.m_kind == EntityType::move_platform

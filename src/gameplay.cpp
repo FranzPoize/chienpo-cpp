@@ -685,10 +685,14 @@ bool update_triggers(Game & game, Thing & thing, const CommandState & command)
         bool event =
             std::find(events.begin(), events.end(), trigger.m_trigger_action)
             != events.end();
+
         if (thing.m_active
             && trigger.m_trigger_action == TriggerActionType::on_start
             && command.jump.positive_edge)
+        {
             event = true;
+        }
+
         if (thing.m_active
             && trigger.m_trigger_action == TriggerActionType::on_count
             && count >= trigger.m_trigger_count_target)
@@ -696,6 +700,7 @@ bool update_triggers(Game & game, Thing & thing, const CommandState & command)
             event = true;
             consumed_count = true;
         }
+
         if (event && !trigger.m_triggered)
         {
             const double probability =
@@ -708,7 +713,12 @@ bool update_triggers(Game & game, Thing & thing, const CommandState & command)
                 trigger.m_trigger_elapsed = 0;
             }
         }
-        if (!trigger.m_triggered) continue;
+
+        if (!trigger.m_triggered)
+        {
+            continue;
+        }
+
         trigger.m_trigger_elapsed += game.m_delta_time;
         if (trigger.m_trigger_elapsed + epsilon
             >= std::max(0.0, trigger.m_trigger_delay))
@@ -925,7 +935,9 @@ void update_editor(Game & game, Thing & scene, const CommandState & command)
         {command.add_decor.positive_edge, EntityType::decor},
         {command.add_laser.positive_edge, EntityType::laser},
         {command.add_trigger_thing.positive_edge, EntityType::trigger}};
+
     for (auto [pressed, kind] : additions)
+    {
         if (pressed)
         {
             const auto & device = scene.parent();
@@ -935,11 +947,18 @@ void update_editor(Game & game, Thing & scene, const CommandState & command)
                             .49 / positive(device.m_base_scale_y, 1));
             if (idx) game.m_entity_selected_index = idx;
         }
+    }
     auto & thing = game.m_things.get(game.m_entity_selected_index);
-    if (!ent_valid(thing) || thing.parent_idx != scene.m_idx) return;
+
+    if (!ent_valid(thing) || thing.parent_idx != scene.m_idx)
+    {
+        return;
+    }
+
     const bool moving = thing.m_kind == EntityType::move_platform;
     const bool box = moving || thing.m_kind == EntityType::platform
                      || thing.m_kind == EntityType::masking_box;
+
     if (command.delete_key.positive_edge)
     {
         if (moving && !command.shift.pressed && !thing.m_path_point.empty())
@@ -959,8 +978,12 @@ void update_editor(Game & game, Thing & scene, const CommandState & command)
             return;
         }
     }
+
     if (box && (command.next.positive_edge || command.prev.positive_edge))
+    {
         thing.m_selection_sub_index = thing.m_selection_sub_index ? 0 : 1;
+    }
+
     if (moving)
     {
         if (scene.m_debug_moving_platform) return;
